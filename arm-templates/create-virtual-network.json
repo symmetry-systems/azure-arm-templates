@@ -19,6 +19,7 @@
             "apiVersion": "2021-01-01",
             "dependsOn": [],
             "tags": {},
+            "location": "[parameters('location')]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
