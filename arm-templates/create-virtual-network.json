@@ -10,7 +10,7 @@
         },
         "vnetName": {
             "type": "string",
-            "default": "dataguard-vnet"
+            "defaultValue": "dataguard-vnet"
         }
     },
     "resources": [
