@@ -31,10 +31,13 @@
         "adminUsername": {
             "defaultValue": "ubuntu",
             "type": "string"
+        },
+        "vnetId": {
+            "defaultValue": "dataguard-vnet",
+            "type": "string"
         }
     },
     "variables": {
-        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', 'dataguard-vnet')]",
         "subnetRef": "[concat(variables('vnetId'),'/subnets/public-subnet')]",
         "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-intr-face')]",
         "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'nsg')]",
