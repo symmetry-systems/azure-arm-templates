@@ -9,8 +9,11 @@
             }
         },
         "vnetName": {
-            "type": "string",
-            "defaultValue": "dataguard-vnet"
+	    "defaultValue": "dataguard-vnet",
+            "metadata": {
+                "description": "The name to assign the created virtual network. The name 'dataguard-vnet' is recommended."
+            }
+            "type": "string"
         }
     },
     "resources": [
