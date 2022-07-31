@@ -117,7 +117,7 @@
                         "managedDisk": {
                             "storageAccountType": "[parameters('osDiskType')]"
                         },
-                        "diskSizeGB": 30
+                        "diskSizeGB": 1024
                     },
                     "imageReference": {
                         "publisher": "canonical",
