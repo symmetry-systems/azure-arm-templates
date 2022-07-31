@@ -32,13 +32,13 @@
             "defaultValue": "ubuntu",
             "type": "string"
         },
-        "vnetId": {
+        "vnetName": {
             "defaultValue": "dataguard-vnet",
             "type": "string"
         }
     },
     "variables": {
-        "subnetRef": "[concat('/subscriptions/', subscription().Id, '/resourceGroups/', resourceGroup().Id, '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetId'))]",
+        "subnetRef": "[concat('/subscriptions/', subscription().Id, '/resourceGroups/', resourceGroup().Id, '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
         "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-intr-face')]",
         "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'nsg')]",
         "publicIpAddressName": "[concat(parameters('vmName'), '-', 'ip')]",
