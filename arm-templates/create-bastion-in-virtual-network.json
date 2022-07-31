@@ -10,6 +10,9 @@
         },
         "vmName": {
             "defaultValue": "dataguard-bastion-1",
+            "metadata": {
+                "description": "The name to assign the DataGuard bastion virtual machine."
+            },
             "type": "string"
         },
         "publicIpAddressType": {
@@ -30,10 +33,16 @@
         },
         "adminUsername": {
             "defaultValue": "ubuntu",
+            "metadata": {
+                "description": "The user to use when connecting to the DataGuard bastion virtual machine."
+            },
             "type": "string"
         },
         "vnetName": {
             "defaultValue": "dataguard-vnet",
+            "metadata": {
+                "description": "The virtual network the DataGuard bastion will be attached to. If using the default ARM templates, this should be 'dataguard-vnet'."
+            },
             "type": "string"
         }
     },
