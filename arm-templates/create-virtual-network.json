@@ -1,0 +1,128 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "vnetName": {
+            "type": "string"
+        },
+        "publicipname": {
+            "type": "string"
+        },
+        "natgatewayname": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "name": "[parameters('vnetName')]",
+            "type": "Microsoft.Network/VirtualNetworks",
+            "apiVersion": "2021-01-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "privateEndpointNetworkPolicies": "Disabled"
+                        }
+                    },
+                    {
+                        "name": "public-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "privateEndpointNetworkPolicies": "Disabled"
+                        }
+                    },
+                    {
+                        "name": "private-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/24",
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "natGateway": {
+                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
+                              }
+                        }
+                    },
+                    {
+                        "name": "app-gw-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.3.0/24",
+                            "privateEndpointNetworkPolicies": "Disabled"
+                        }
+                    }
+                    
+                ]
+            },
+            "dependsOn": [
+              "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
+            ]
+        },
+        {
+          "type": "Microsoft.Network/natGateways",
+          "apiVersion": "2021-05-01",
+          "name": "[parameters('natgatewayname')]",
+          "location": "[parameters('location')]",
+          "sku": {
+            "name": "Standard"
+          },
+          "properties": {
+            "idleTimeoutInMinutes": 4,
+            "publicIpAddresses": [
+              {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
+              }
+            ]
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
+          ]
+        },
+        {
+          "type": "Microsoft.Network/publicIPAddresses",
+          "apiVersion": "2021-05-01",
+          "name": "[parameters('publicipname')]",
+          "location": "[parameters('location')]",
+          "sku": {
+            "name": "Standard"
+          },
+          "properties": {
+            "publicIPAddressVersion": "IPv4",
+            "publicIPAllocationMethod": "Static",
+            "idleTimeoutInMinutes": 4
+          }
+        }
+    ],
+	"outputs": {
+		"vnetId": {
+			"type": "string",
+			"value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+		},
+		"defaultSubnetId": {
+			"type": "string",
+			"value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]"
+		},
+        "publicSubnetId": {
+			"type": "string",
+			"value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'public-subnet')]"
+		},
+        "privateSubnetId": {
+			"type": "string",
+			"value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'private-subnet')]"
+		},
+        "appGWSubnetId": {
+			"type": "string",
+			"value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'app-gw-subnet')]"
+		}
+	}
+}
