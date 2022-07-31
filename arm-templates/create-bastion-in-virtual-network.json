@@ -3,10 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminPublicKey": {
-            "type": "string",
             "metadata": {
                 "description": "Specifies the SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
-            }
+            },
+            "type": "string"
         },
         "vmName": {
             "defaultValue": "dataguard-bastion-1",
