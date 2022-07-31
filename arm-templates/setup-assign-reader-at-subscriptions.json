@@ -12,7 +12,7 @@
     "identityId": {
       "type": "string",
       "metadata": {
-        "description": "Specifies the GUID of the DataGuard managed identity. This should be the GUID of the 'dataguard-auditor' identity."
+        "description": "Specifies the principal ID (GUID) of the DataGuard managed identity. This should be the principal ID of the 'dataguard-auditor' identity."
       }
     }
   },
