@@ -29,7 +29,7 @@
             "type": "string"
         },
         "adminUsername": {
-            "defaultValue": "azureuser",
+            "defaultValue": "ubuntu",
             "type": "string"
         },
         "vnetName": {
