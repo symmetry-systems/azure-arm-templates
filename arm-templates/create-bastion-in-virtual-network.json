@@ -11,7 +11,7 @@
         "vmName": {
             "defaultValue": "dataguard-bastion-1",
             "metadata": {
-                "description": "The name to assign the DataGuard bastion virtual machine."
+                "description": "The name for the DataGuard bastion virtual machine."
             },
             "type": "string"
         },
