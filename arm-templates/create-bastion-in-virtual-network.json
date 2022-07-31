@@ -39,8 +39,8 @@
     },
     "variables": {
         "subnetRef": "[concat('/subscriptions/', subscription().Id, '/resourceGroups/', resourceGroup().Id, '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
-        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-intr-face')]",
-        "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'nsg')]",
+        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-interface')]",
+        "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'network-security-group')]",
         "publicIpAddressName": "[concat(parameters('vmName'), '-', 'ip')]",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
     },
