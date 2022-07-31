@@ -31,12 +31,19 @@
         "adminUsername": {
             "defaultValue": "ubuntu",
             "type": "string"
+        },
+        "vnetName": {
+            "defaultValue": "dataguard-vnet",
+            "metadata": {
+                "description": "The virtual network the DataGuard bastion will be attached to. If using the default ARM templates, this should be 'dataguard-vnet'."
+            },
+            "type": "string"
         }
     },
     "variables": {
-        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', 'dataguard-vnet')]",
+        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "subnetRef": "[concat(variables('vnetId'),'/subnets/private-subnet')]",
-        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-intr-face')]",
+        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-interface')]",
         "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'nsg')]",
         "publicIpAddressName": "[concat(parameters('vmName'), '-', 'ip')]",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
