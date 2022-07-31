@@ -47,7 +47,7 @@
         }
     },
     "variables": {
-        "subnetRef": "[concat(resourceGroup().Id, '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
+        "subnetRef": "[concat(resourceGroup().Id, '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/default')]",
         "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-interface')]",
         "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'network-security-group')]",
         "publicIpAddressName": "[concat(parameters('vmName'), '-', 'ip')]",
