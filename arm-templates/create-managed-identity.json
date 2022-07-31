@@ -79,8 +79,8 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2019-10-01",
               "name": "[format('create-{0}', parameters('identityName'))]",
-              "resourceGroup": "[parameters('resourceGroupName')]",
-              "subscriptionId": "[parameters('subscriptionId')]",
+              "resourceGroup": "[variables('resourceGroupName')]",
+              "subscriptionId": "[variables('subscriptionId')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
