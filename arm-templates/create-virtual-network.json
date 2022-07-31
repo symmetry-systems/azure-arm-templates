@@ -3,15 +3,30 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
+	    "metadata": {
+                "description": "The region where the virtual network will be deployed. List of available regions for the resource type are: 'westus,eastus,northeurope,westeurope,eastasia,southeastasia,northcentralus,southcentralus,centralus,eastus2,japaneast,japanwest,brazilsouth,australiaeast,australiasoutheast,centralindia,southindia,westindia,canadacentral,canadaeast,westcentralus,westus2,ukwest,uksouth,koreacentral,koreasouth,francecentral,australiacentral,southafricanorth,uaenorth,switzerlandnorth,germanywestcentral,norwayeast,westus3,jioindiawest,swedencentral,qatarcentral'"
+            },
             "type": "string"
         },
         "vnetName": {
+	    "defaultValue": "dataguard-vnet",
+	    "metadata": {
+                "description": "The name to assign the created virtual network. The name 'dataguard-vnet' is recommended."
+            },
             "type": "string"
         },
-        "publicipname": {
+        "publicIPName": {
+            "defaultValue": "dataguard-public-ip",
+	    "metadata": {
+                "description": "The name to assign the public IP assigned to DataGuard. The name 'dataguard-public-ip' is recommended."
+            },
             "type": "string"
         },
-        "natgatewayname": {
+        "natGatewayName": {
+	    "defaultValue": "dataguard-nat-gateway",
+	    "metadata": {
+                "description": "The name to assign the DataGuard NAT gateway. The name 'dataguard-nat-gateway' is recommended."
+            },
             "type": "string"
         }
     },
@@ -50,7 +65,7 @@
                             "addressPrefix": "10.0.2.0/24",
                             "privateEndpointNetworkPolicies": "Disabled",
                             "natGateway": {
-                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
+                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
                               }
                         }
                     },
@@ -65,13 +80,13 @@
                 ]
             },
             "dependsOn": [
-              "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
+              "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
             ]
         },
         {
           "type": "Microsoft.Network/natGateways",
           "apiVersion": "2021-05-01",
-          "name": "[parameters('natgatewayname')]",
+          "name": "[parameters('natGatewayName')]",
           "location": "[parameters('location')]",
           "sku": {
             "name": "Standard"
@@ -80,18 +95,18 @@
             "idleTimeoutInMinutes": 4,
             "publicIpAddresses": [
               {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPName'))]"
               }
             ]
           },
           "dependsOn": [
-            "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
+            "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPName'))]"
           ]
         },
         {
           "type": "Microsoft.Network/publicIPAddresses",
           "apiVersion": "2021-05-01",
-          "name": "[parameters('publicipname')]",
+          "name": "[parameters('publicIPName')]",
           "location": "[parameters('location')]",
           "sku": {
             "name": "Standard"
