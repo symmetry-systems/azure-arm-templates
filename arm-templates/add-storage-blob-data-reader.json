@@ -13,7 +13,8 @@
             "allowedValues": [
                 "Owner",
                 "Contributor",
-                "Reader"
+                "Reader",
+		"Blob Reader"
             ],
             "metadata": {
                 "description": "Built-in role to assign"
