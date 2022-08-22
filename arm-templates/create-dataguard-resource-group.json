@@ -1,0 +1,26 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Default dataguard resourse group to which to deploy resources."
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Location to which to deploy resources."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('resourceGroupName')]",
+            "location": "[parameters('location')]"
+        }
+    ]
+}

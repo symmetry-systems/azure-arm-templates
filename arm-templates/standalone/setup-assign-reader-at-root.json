@@ -1,0 +1,68 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"identityId": {
+			"type": "string",
+			"metadata": {
+				"description": "Specifies the ID of the user-assigned managed identity used for dataguard."
+			}
+		}
+	},
+	"variables": {
+		"nestedIdentityRootReaderRoleAssignmentDeployment": "[format('assign-root-reader-role-{0}', parameters('identityId'))]"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('nestedIdentityRootReaderRoleAssignmentDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"identityId": {
+						"value": "[parameters('identityId')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"identityId": {
+							"type": "string",
+							"metadata": {
+								"description": "dataguard identity"
+							}
+						}
+					},
+					"resources": [{
+						"type": "Microsoft.Resources/deployments",
+						"apiVersion": "2019-10-01",
+						"name": "[format('add-contrib-role-to-id')]",
+						"location": "[deployment().location]",
+						"properties": {
+							"expressionEvaluationOptions": {
+								"scope": "inner"
+							},
+							"mode": "Incremental",
+							"parameters": {
+								"identityId": {
+									"value": "[parameters('identityId')]"
+								}
+							},
+							"templateLink": {
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/assign-reader-role-to-root-group.json",
+								"contentVersion": "1.0.0.0"
+							}
+						}
+					}]
+
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,191 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"subscriptionId": {
+			"type": "string",
+			"metadata": {
+				"description": "Subscription Id for dataguard."
+			}
+		},
+		"identityName": {
+			"type": "string",
+			// "defaultValue": "template-created-dg-id",
+			"metadata": {
+				"description": "Specifies the name of the user-assigned managed identity used for dataguard."
+			}
+		},
+		"resourceGroupName": {
+			"type": "string",
+			// "defaultValue": "dataguard-resource-grp",
+			"metadata": {
+				"description": "Resource group name for dataguard."
+			}
+		},
+		"location": {
+			"type": "string",
+			"defaultValue": "EastUs",
+			"metadata": {
+				"description": "The Azure location where the managed identity should be created."
+			}
+		}
+	},
+	"variables": {
+		"nestedCreateIdentityDeployment": "[format('setup-id-{0}', parameters('identityName'))]",
+		"nestedIdentityOwnSubContributorRoleAssignmentDeployment": "[format('assign-own-sub-contrib-role-{0}', parameters('identityName'))]"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('nestedCreateIdentityDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"identityName": {
+						"value": "[parameters('identityName')]"
+					},
+					"subscriptionId": {
+						"value": "[parameters('subscriptionId')]"
+					},
+					"resourceGroupName": {
+						"value": "[parameters('resourceGroupName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"identityName": {
+							"type": "string",
+							"metadata": {
+								"description": "dataguard identity"
+							}
+						},
+						"subscriptionId": {
+							"type": "string",
+							"metadata": {
+								"description": "subscriptionId for the deployment"
+							}
+						},
+						"resourceGroupName": {
+							"type": "string",
+							"metadata": {
+								"description": "resource group name"
+							}
+						},
+						"location": {
+							"type": "string"
+						}
+					},
+					"resources": [{
+						"type": "Microsoft.Resources/deployments",
+						"apiVersion": "2019-10-01",
+						"name": "[format('create-{0}', parameters('identityName'))]",
+						"resourceGroup": "[parameters('resourceGroupName')]",
+						"subscriptionId": "[parameters('subscriptionId')]",
+						"properties": {
+							"expressionEvaluationOptions": {
+								"scope": "inner"
+							},
+							"mode": "Incremental",
+							"parameters": {
+								"identityName": {
+									"value": "[parameters('identityName')]"
+								},
+								"location": {
+									"value": "[parameters('location')]"
+								}
+							},
+							"templateLink": {
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-dataguard-identity.json",
+								"contentVersion": "1.0.0.0"
+							}
+						}
+					}],
+					"outputs": {
+						"principalId": {
+							"type": "string",
+							"value": "[reference(format('create-{0}', parameters('identityName'))).outputs.principalId.value]"
+						}
+					}
+
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('nestedIdentityOwnSubContributorRoleAssignmentDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"identityId": {
+						"value": "[reference(format('Microsoft.Resources/deployments/{0}', variables('nestedCreateIdentityDeployment'))).outputs.principalId.value]"
+					},
+					"subscriptionId": {
+						"value": "[parameters('subscriptionId')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"identityId": {
+							"type": "string",
+							"metadata": {
+								"description": "dataguard identity"
+							}
+						},
+						"subscriptionId": {
+							"type": "string",
+							"metadata": {
+								"description": "subscriptionId for the deployment"
+							}
+						}
+					},
+					"resources": [{
+						"type": "Microsoft.Resources/deployments",
+						"apiVersion": "2019-10-01",
+						"name": "[format('add-contrib-role-to-id')]",
+						"subscriptionId": "[parameters('subscriptionId')]",
+						"location": "[deployment().location]",
+						"properties": {
+							"expressionEvaluationOptions": {
+								"scope": "inner"
+							},
+							"mode": "Incremental",
+							"parameters": {
+								"identityId": {
+									"value": "[parameters('identityId')]"
+								},
+								"subscriptionId": {
+									"value": "[parameters('subscriptionId')]"
+								}
+							},
+							"templateLink": {
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/assign-contributor-role-to-sub.json",
+								"contentVersion": "1.0.0.0"
+							}
+						}
+					}]
+
+				}
+			},
+			"dependsOn": [
+				"[format('Microsoft.Resources/deployments/{0}', variables('nestedCreateIdentityDeployment'))]"
+			]
+		}
+	]
+}

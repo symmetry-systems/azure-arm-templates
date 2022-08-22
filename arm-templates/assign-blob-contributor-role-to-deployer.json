@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "deployerPrincipalId": {
+			"type": "string"
+		},
+		"deployerPrincipalType": {
+			"type": "string",
+			"defaultValue": "User"
+		},
+        "storageAccountName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "deployerContributorRoleAssignmentId": "[guid(concat('/subscriptions/', 'deployer'))]",
+        "BlobContributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('deployerContributorRoleAssignmentId')]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('storageAccountName'))]",
+            "properties": {
+                "roleDefinitionId": "[variables('BlobContributor')]",
+                "principalId": "[parameters('deployerPrincipalId')]",
+                "principalType": "[parameters('deployerPrincipalType')]"
+            }
+        }
+    ]
+}

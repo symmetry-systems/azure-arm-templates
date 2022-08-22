@@ -1,0 +1,44 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"identityId": {
+			"type": "string",
+			"metadata": {
+				"description": "Specifies the name of the user-assigned managed identity."
+			}
+		},
+		"subscriptionId": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"contributorRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'contributor'))]",
+		"contributorForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+		"blobContributorRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'blob/contributor'))]",
+		"blobContributorForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+		"subscriptionScope": "[concat('/subscriptions/', parameters('subscriptionId'))]"
+	},
+	"resources": [{
+		"type": "Microsoft.Authorization/roleAssignments",
+		"apiVersion": "2021-04-01-preview",
+		"name": "[variables('contributorRoleAssignmentId')]",
+		"properties": {
+			"roleDefinitionId": "[variables('contributorForSubRoleDefinitionId')]",
+			"principalId": "[parameters('identityId')]",
+			"scope": "[variables('subscriptionScope')]",
+			"principalType": "ServicePrincipal"
+		}
+	},
+	{
+		"type": "Microsoft.Authorization/roleAssignments",
+		"apiVersion": "2021-04-01-preview",
+		"name": "[variables('blobContributorRoleAssignmentId')]",
+		"properties": {
+			"roleDefinitionId": "[variables('blobContributorForSubRoleDefinitionId')]",
+			"principalId": "[parameters('identityId')]",
+			"scope": "[variables('subscriptionScope')]",
+			"principalType": "ServicePrincipal"
+		}
+	}]
+}

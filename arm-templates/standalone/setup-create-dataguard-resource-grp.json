@@ -1,0 +1,105 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"subscriptionId": {
+			"type": "string",
+			"metadata": {
+				"description": "Subscription Id for dataguard."
+			}
+		},
+		"resourceGroupName": {
+			"type": "string",
+			// "defaultValue": "dataguard-resource-grp",
+			"metadata": {
+				"description": "Resource group name for dataguard."
+			}
+		},
+		"location": {
+			"type": "string",
+			"defaultValue": "EastUs",
+			"metadata": {
+				"description": "The Azure location where the managed identity should be created."
+			}
+		}
+	},
+	"variables": {
+		"nestedCreateResourceGroupDeployment": "[format('create-resource-group-{0}', parameters('resourceGroupName'))]"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('nestedCreateResourceGroupDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"resourceGroupName": {
+						"value": "[parameters('resourceGroupName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"subscriptionId": {
+						"value": "[parameters('subscriptionId')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"subscriptionId": {
+							"type": "string",
+							"metadata": {
+								"description": "subscriptionId for the deployment"
+							}
+						},
+						"resourceGroupName": {
+							"type": "string",
+							"defaultValue": "dataguard-resource-grp",
+							"metadata": {
+								"description": "Name of the resourceGroup, will be created in the same location as the deployment."
+							}
+						},
+						"location": {
+							"type": "string",
+							"defaultValue": "[deployment().location]",
+							"metadata": {
+								"description": "Location for the deployments and the resources"
+							}
+						}
+					},
+					"resources": [{
+						"type": "Microsoft.Resources/deployments",
+						"apiVersion": "2019-10-01",
+						"name": "[format('create-{0}', parameters('resourceGroupName'))]",
+						"subscriptionId": "[parameters('subscriptionId')]",
+						"location": "[deployment().location]",
+						"properties": {
+							"expressionEvaluationOptions": {
+								"scope": "inner"
+							},
+							"mode": "Incremental",
+							"parameters": {
+								"resourceGroupName": {
+									"value": "[parameters('resourceGroupName')]"
+								},
+								"location": {
+									"value": "[parameters('location')]"
+								}
+							},
+							"templateLink": {
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-dataguard-resource-group.json",
+								"contentVersion": "1.0.0.0"
+							}
+						}
+					}]
+				}
+			}
+		}
+	]
+}

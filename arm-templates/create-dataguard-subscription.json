@@ -1,0 +1,69 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+        "_generator": {
+        "name": "bicep",
+        "version": "0.4.451.19169",
+        "templateHash": "11044401809782387845"
+        }
+    },
+    "parameters": {
+        "billingAccountId": {
+            "type": "string",
+            "metadata": {
+                "description": "Billing Account Name used for subscription billing"
+            }
+        },
+        "billingProfileId": {
+            "type": "string",
+            "metadata": {
+                "description": "Billing Profile Name used for subscription billing"
+            }
+        },
+        "invoiceSectionId" : {
+            "type": "string",
+            "metadata": {
+                "description": "Invoice section Name used for subscription billing"
+            }
+        },
+        "subscriptionAlias": {
+            "type": "string",
+            "metadata": {
+                "description": "Alias to assign to the subscription"
+            }
+        },
+        "subscriptionDisplayName": {
+            "type": "string",
+            "metadata": {
+                "description": "Display name for the subscription"
+            }
+        },
+        "subscriptionWorkload": {
+            "type": "string",
+            "metadata": {
+                "description": "Workload type for the subscription"
+            }
+        }
+    },
+    "functions": [],
+    "resources": [
+        {
+            "type": "Microsoft.Subscription/aliases",
+            "apiVersion": "2020-09-01",
+            "scope": "/",
+            "name": "[parameters('subscriptionAlias')]",
+            "properties": {
+                "workload": "[parameters('subscriptionWorkload')]",
+                "displayName": "[parameters('subscriptionDisplayName')]",
+                "billingScope": "[tenantResourceId('Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections', parameters('billingAccountId'), parameters('billingProfileId'), parameters('invoiceSectionId'))]"
+            }
+        }
+    ],
+    "outputs": {
+        "subscriptionId": {
+            "type": "string",
+            "value": "[reference(tenantResourceId('Microsoft.Subscription/aliases', parameters('subscriptionAlias'))).subscriptionId]"
+        }
+    }
+}

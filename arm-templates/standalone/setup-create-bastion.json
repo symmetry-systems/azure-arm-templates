@@ -1,0 +1,97 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"subscriptionId": {
+			"type": "string",
+			"metadata": {
+				"description": "Subscription Id for dataguard."
+			}
+		},
+		"resourceGroupName": {
+			"type": "string",
+			// "defaultValue": "dataguard-resource-grp",
+			"metadata": {
+				"description": "Resource group name for dataguard."
+			}
+		},
+        "bastionSubnetId": {
+            "type": "string",
+			// "defaultValue": "dataguard-resource-grp",
+			"metadata": {
+				"description": "Bastion subnet id in dataguard VNet."
+			}
+        }
+	},
+	"variables": {
+		"nestedCreateBastionDeployment": "create-bastion"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('nestedCreateBastionDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"subscriptionId": {
+						"value": "[parameters('subscriptionId')]"
+					},
+					"resourceGroupName": {
+						"value": "[parameters('resourceGroupName')]"
+					},
+					"bastionSubnetId": {
+						"value": "[parameters('bastionSubnetId')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"subscriptionId": {
+							"type": "string",
+							"metadata": {
+								"description": "subscriptionId for the deployment"
+							}
+						},
+						"resourceGroupName": {
+							"type": "string",
+							"metadata": {
+								"description": "resource group name"
+							}
+						},
+						"bastionSubnetId": {
+							"type": "string"
+						}
+					},
+					"resources": [{
+						"type": "Microsoft.Resources/deployments",
+						"apiVersion": "2019-10-01",
+						"name": "create-bastion",
+						"resourceGroup": "[parameters('resourceGroupName')]",
+						"subscriptionId": "[parameters('subscriptionId')]",
+						"properties": {
+							"expressionEvaluationOptions": {
+								"scope": "inner"
+							},
+							"mode": "Incremental",
+							"parameters": {
+								"subnetId": {
+									"value": "[parameters('bastionSubnetId')]"
+								}
+							},
+							"templateLink": {
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-bastion.json",
+								"contentVersion": "1.0.0.0"
+							}
+						}
+					}]
+				}
+			}
+		}
+	]
+}

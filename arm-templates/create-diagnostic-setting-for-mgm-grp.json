@@ -1,0 +1,54 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"settingName": {
+            "defaultValue": "dg-diagnostic-settings",
+			"type": "String"
+		},
+		"storageAccountId": {
+			"type": "String"
+		}
+	},
+	"resources": [{
+		"type": "Microsoft.Insights/diagnosticSettings",
+		"apiVersion": "2017-05-01-preview",
+		"name": "[parameters('settingName')]",
+		"properties": {
+			"storageAccountId": "[parameters('storageAccountId')]",
+			"logs": [{
+					"category": "Administrative",
+					"enabled": true
+				},
+				{
+					"category": "Security",
+					"enabled": true
+				},
+				{
+					"category": "ServiceHealth",
+					"enabled": true
+				},
+				{
+					"category": "Alert",
+					"enabled": true
+				},
+				{
+					"category": "Recommendation",
+					"enabled": true
+				},
+				{
+					"category": "Policy",
+					"enabled": true
+				},
+				{
+					"category": "Autoscale",
+					"enabled": true
+				},
+				{
+					"category": "ResourceHealth",
+					"enabled": true
+				}
+			]
+		}
+	}]
+}

@@ -1,0 +1,89 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"subscriptionsToMonitor": {
+			"type": "array", 
+			// "defaultValue": ["638dc5e8-9d48-485c-96f6-877ba307584e","6aa465aa-0075-40bc-a8da-cc33ef685b94", "ba296500-8b0a-4ca7-abff-1293cdd059eb", "a8bffe63-913d-401d-afd6-1f8a9b93787b"]
+			"defaultValue": ["replace sub id 1 here", "replace sub id 2 here etc."]
+		},
+		"identityId": {
+			"type": "string",
+			"metadata": {
+				"description": "Specifies the ID of the Dataguard application identity."
+			}
+		}
+	},
+	"variables": {
+		"nestedIdentityOtherReaderRoleAssignmentDeployment": "[format('assign-data-roles-to-dg-app-id')]"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[concat(variables('nestedIdentityOtherReaderRoleAssignmentDeployment'), '-', copyIndex())]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"identityId": {
+						"value": "[parameters('identityId')]"
+					},
+					"subscriptionId": {
+						"value": "[parameters('subscriptionsToMonitor')[copyIndex()]]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"identityId": {
+							"type": "string",
+							"metadata": {
+								"description": "dataguard managed identity id"
+							}
+						},
+						"subscriptionId":{
+							"type": "string"
+						}
+					},
+					"resources": [
+						{
+							"type": "Microsoft.Resources/deployments",
+							"apiVersion": "2019-10-01",
+							"name": "enable-activity-log-at-root",
+							"location": "[deployment().location]",
+							"subscriptionId": "[parameters('subscriptionId')]",
+							"properties": {
+								"expressionEvaluationOptions": {
+									"scope": "inner"
+								},
+								"mode": "Incremental",
+								"parameters": {
+									"identityId": {
+										"value": "[parameters('identityId')]"
+									},
+									"subscriptionId": {
+										"value": "[parameters('subscriptionId')]"
+									}
+								},
+								"templateLink": {
+									"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/assign-data-roles-to-sub.json",
+									"contentVersion": "1.0.0.0"
+								}
+							}
+						}
+					]
+
+				}
+			},
+			"copy": {
+				"name": "subscriptionsToMonitorcopy",
+				"count": "[length(parameters('subscriptionsToMonitor'))]"
+			}
+		}
+	]
+}

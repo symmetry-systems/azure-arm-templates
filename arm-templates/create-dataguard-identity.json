@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"identityName": {
+			"type": "string",
+			"metadata": {
+				"description": "Specifies the name of the user-assigned managed identity."
+			}
+		},
+		"location": {
+			"type": "string"
+		}
+	},
+	"resources": [{
+			"type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+			"apiVersion": "2018-11-30",
+			"location": "[parameters('location')]",
+			"name": "[parameters('identityName')]"
+		}
+	],
+	"outputs": {
+		"principalId": {
+			"type": "string",
+			"value": "[reference(parameters('identityName')).principalId]"
+		}
+	}
+}

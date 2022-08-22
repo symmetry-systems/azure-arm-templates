@@ -1,0 +1,124 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"subscriptionId": {
+			"type": "string",
+			"metadata": {
+				"description": "Subscription Id for dataguard."
+			}
+		},
+		"resourceGroupName": {
+			"type": "string",
+			// "defaultValue": "dataguard-resource-grp",
+			"metadata": {
+				"description": "Resource group name for dataguard."
+			}
+		},
+		"location": {
+			"type": "string",
+			"defaultValue": "EastUs",
+			"metadata": {
+				"description": "The Azure location where the managed identity should be created."
+			}
+		}
+	},
+	"variables": {
+		"nestedCreateVirtualNetwork": "virtual-network-deployment",
+		"vnetName": "dataguard-vnet"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('nestedCreateVirtualNetwork')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"vnetName": {
+						"value": "[variables('vnetName')]"
+					},
+					"subscriptionId": {
+						"value": "[parameters('subscriptionId')]"
+					},
+					"resourceGroupName": {
+						"value": "[parameters('resourceGroupName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"vnetName": {
+							"type": "string",
+							"metadata": {
+								"description": "dataguard identity"
+							}
+						},
+						"subscriptionId": {
+							"type": "string",
+							"metadata": {
+								"description": "subscriptionId for the deployment"
+							}
+						},
+						"resourceGroupName": {
+							"type": "string",
+							"metadata": {
+								"description": "resource group name"
+							}
+						},
+						"location": {
+							"type": "string"
+						}
+					},
+					"resources": [{
+						"type": "Microsoft.Resources/deployments",
+						"apiVersion": "2019-10-01",
+						"name": "[format('create-{0}', parameters('vnetName'))]",
+						"resourceGroup": "[parameters('resourceGroupName')]",
+						"subscriptionId": "[parameters('subscriptionId')]",
+						"properties": {
+							"expressionEvaluationOptions": {
+								"scope": "inner"
+							},
+							"mode": "Incremental",
+							"parameters": {
+								"vnetName": {
+									"value": "[parameters('vnetName')]"
+								},
+								"location": {
+									"value": "[parameters('location')]"
+								}
+							},
+							"templateLink": {
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-virtual-network.json",
+								"contentVersion": "1.0.0.0"
+							}
+						}
+					}],
+					"outputs": {
+						"vnetId": {
+							"type": "string",
+							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.vnetId.value]"
+						},
+						"defaultSubnetId": {
+							"type": "string",
+							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.defaultSubnetId.value]"
+						},
+						"bastionSubnetId": {
+							"type": "string",
+							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.bastionSubnetId.value]"
+						}
+					}
+				}
+			}
+		}
+	]
+}

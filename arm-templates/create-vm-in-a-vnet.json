@@ -9,7 +9,7 @@
             }
         },
         "vmName": {
-            "defaultValue": "dataguard-analysis-vm-1",
+            "defaultValue": "dataguard-vm-1",
             "type": "string"
         },
         "publicIpAddressType": {
@@ -25,24 +25,18 @@
             "type": "string"
         },
         "virtualMachineSize": {
-            "defaultValue": "Standard_B12ms",
+            "defaultValue": "Standard_B1s",
             "type": "string"
         },
         "adminUsername": {
-            "defaultValue": "ubuntu",
-            "type": "string"
-        },
-        "vnetName": {
-            "defaultValue": "dataguard-vnet",
-            "metadata": {
-                "description": "The virtual network the DataGuard bastion will be attached to. If using the default ARM templates, this should be 'dataguard-vnet'."
-            },
+            "defaultValue": "azureuser",
             "type": "string"
         }
     },
     "variables": {
-        "subnetRef": "[concat(resourceGroup().Id, '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/default')]",
-        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-interface')]",
+        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', 'dataguard-vnet')]",
+        "subnetRef": "[concat(variables('vnetId'),'/subnets/default')]",
+        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-intr-face')]",
         "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'nsg')]",
         "networkSecurityGroupRules": [],
         "publicIpAddressName": "[concat(parameters('vmName'), '-', 'ip')]",
@@ -117,7 +111,7 @@
                         "managedDisk": {
                             "storageAccountType": "[parameters('osDiskType')]"
                         },
-                        "diskSizeGB": 1024
+                        "diskSizeGB": 30
                     },
                     "imageReference": {
                         "publisher": "canonical",
