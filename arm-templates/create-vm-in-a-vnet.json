@@ -20,6 +20,10 @@
             "defaultValue":"Basic",
             "type": "string"
         },
+        "privateIpAddress": {
+                "defaultValue": "10.10.0.22",
+                "type": "string"
+        },
         "osDiskType": {
             "defaultValue": "Premium_LRS",
             "type": "string"
@@ -60,7 +64,8 @@
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('privateIpAddress')]",
                             "publicIpAddress": {
                                 "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
                             }
