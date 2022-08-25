@@ -53,6 +53,20 @@
 	},
 	"resources": [
 		{
+			"apiVersion": "2020-06-01",
+			"name": "pid-187b466a-e448-46dc-840b-e663ce1a9bf3",
+			"location": "[deployment().location]",
+			"type": "Microsoft.Resources/deployments",
+			"properties": {
+				"mode": "Incremental",
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"resources": []
+				}
+			}
+		},
+		{
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2019-10-01",
 			"name": "[variables('setupSubscriptionDeployment')]",

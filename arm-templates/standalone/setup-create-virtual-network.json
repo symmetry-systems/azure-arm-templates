@@ -10,7 +10,6 @@
 		},
 		"resourceGroupName": {
 			"type": "string",
-			// "defaultValue": "dataguard-resource-grp",
 			"metadata": {
 				"description": "Resource group name for dataguard."
 			}
@@ -21,10 +20,24 @@
 			"metadata": {
 				"description": "The Azure location where the managed identity should be created."
 			}
-		}
+		},
+        "publicipname": {
+			"type": "string",
+			"defaultValue": "dataguard-nat-ip",
+			"metadata": {
+				"description": "NAT Public IP name."
+			}
+        },
+        "natgatewayname": {
+			"type": "string",
+			"defaultValue": "dataguard-nat-gw",
+			"metadata": {
+				"description": "NAT GW name."
+			}
+        }
 	},
 	"variables": {
-		"nestedCreateVirtualNetwork": "virtual-network-deployment",
+		"nestedCreateVirtualNetwork": "[format('setup-id-{0}', 'vnet')]",
 		"vnetName": "dataguard-vnet"
 	},
 	"resources": [
@@ -50,7 +63,14 @@
 					},
 					"location": {
 						"value": "[parameters('location')]"
+					},
+					"publicipname": {
+						"value": "[parameters('publicipname')]"
+					},
+					"natgatewayname": {
+						"value": "[parameters('natgatewayname')]"
 					}
+
 				},
 				"template": {
 					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
@@ -76,6 +96,18 @@
 						},
 						"location": {
 							"type": "string"
+						},
+						"publicipname": {
+							"type": "string",
+							"metadata": {
+								"description": "public ip name"
+							}
+						},
+						"natgatewayname": {
+							"type": "string",
+							"metadata": {
+								"description": "nat gw name"
+							}
 						}
 					},
 					"resources": [{
@@ -95,10 +127,16 @@
 								},
 								"location": {
 									"value": "[parameters('location')]"
+								},
+								"publicipname": {
+									"value": "[parameters('publicipname')]"
+								},
+								"natgatewayname": {
+									"value": "[parameters('natgatewayname')]"
 								}
 							},
 							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-virtual-network.json",
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/azure-templates/templates/create-virtual-network.json",
 								"contentVersion": "1.0.0.0"
 							}
 						}
@@ -112,9 +150,17 @@
 							"type": "string",
 							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.defaultSubnetId.value]"
 						},
-						"bastionSubnetId": {
+						"publicSubnetId": {
 							"type": "string",
-							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.bastionSubnetId.value]"
+							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.publicSubnetId.value]"
+						},
+						"privateSubnetId": {
+							"type": "string",
+							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.privateSubnetId.value]"
+						},
+						"appGWSubnetId": {
+							"type": "string",
+							"value": "[reference(format('create-{0}', parameters('vnetName'))).outputs.appGWSubnetId.value]"
 						}
 					}
 				}

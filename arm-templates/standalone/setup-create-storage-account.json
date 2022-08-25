@@ -189,7 +189,7 @@
 						"location": {
 							"type": "string"
 						},
-						"storageAccountName": {
+						"storageAccountName": { 
 							"type": "string"
 						},
 						"storageAccountId": {
@@ -217,6 +217,9 @@
 								"location": {
 									"value": "[parameters('location')]"
 								},
+								"resourceGroupName": {
+									"value": "[parameters('resourceGroupName')]"
+								},
 								"privateEndpointName": {
 									"value": "[concat(parameters('storageAccountName'), '-blob-pvt-ep')]"
 								},
@@ -234,7 +237,7 @@
 								}
 							},
 							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-pvt-ep-blob.json",
+								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/create-resource-group-parameter-update/templates/create-pvt-ep-blob.json",
 								"contentVersion": "1.0.0.0"
 							}
 						}

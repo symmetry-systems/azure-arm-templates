@@ -13,7 +13,7 @@
 		}
 	},
 	"variables": {
-		"readerRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'reader', parameters('identityId')))]",
+		"readerRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'reader'))]",
 		"readerForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
 		"subscriptionScope": "[concat('/subscriptions/', parameters('subscriptionId'))]"
 	},

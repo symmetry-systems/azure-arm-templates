@@ -9,7 +9,7 @@
             }
         },
         "vmName": {
-            "defaultValue": "dataguard-vm-1",
+            "defaultValue": "dataguard-analysis-1",
             "type": "string"
         },
         "publicIpAddressType": {
@@ -20,29 +20,24 @@
             "defaultValue":"Basic",
             "type": "string"
         },
-        "privateIpAddress": {
-                "defaultValue": "10.10.0.22",
-                "type": "string"
-        },
         "osDiskType": {
             "defaultValue": "Premium_LRS",
             "type": "string"
         },
         "virtualMachineSize": {
-            "defaultValue": "Standard_B1s",
+            "defaultValue": "Standard_D16as_v5",
             "type": "string"
         },
         "adminUsername": {
-            "defaultValue": "azureuser",
+            "defaultValue": "ubuntu",
             "type": "string"
         }
     },
     "variables": {
         "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', 'dataguard-vnet')]",
-        "subnetRef": "[concat(variables('vnetId'),'/subnets/default')]",
+        "subnetRef": "[concat(variables('vnetId'),'/subnets/private-subnet')]",
         "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-intr-face')]",
         "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'nsg')]",
-        "networkSecurityGroupRules": [],
         "publicIpAddressName": "[concat(parameters('vmName'), '-', 'ip')]",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
     },
@@ -64,11 +59,7 @@
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
-                            "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "[parameters('privateIpAddress')]",
-                            "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
-                            }
+                            "privateIPAllocationMethod": "Dynamic"
                         }
                     }
                 ],
@@ -78,12 +69,52 @@
             }
         },
         {
-            "name": "[variables('networkSecurityGroupName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-02-01",
-            "location": "[resourceGroup().location]",
+            "apiVersion": "2020-11-01",
+            "name": "[variables('networkSecurityGroupName')]",
+            "location": "eastus",
             "properties": {
-                "securityRules": "[variables('networkSecurityGroupRules')]"
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "10.0.0.0/8",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(variables('networkSecurityGroupName'), '/SSH')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "22",
+                "sourceAddressPrefix": "10.0.0.0/8",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 300,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
             }
         },
         {
@@ -116,7 +147,7 @@
                         "managedDisk": {
                             "storageAccountType": "[parameters('osDiskType')]"
                         },
-                        "diskSizeGB": 30
+                        "diskSizeGB": 1024
                     },
                     "imageReference": {
                         "publisher": "canonical",

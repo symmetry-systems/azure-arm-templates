@@ -3,30 +3,15 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-	    "metadata": {
-                "description": "The region where the virtual network will be deployed. List of available regions for the resource type are: 'westus,eastus,northeurope,westeurope,eastasia,southeastasia,northcentralus,southcentralus,centralus,eastus2,japaneast,japanwest,brazilsouth,australiaeast,australiasoutheast,centralindia,southindia,westindia,canadacentral,canadaeast,westcentralus,westus2,ukwest,uksouth,koreacentral,koreasouth,francecentral,australiacentral,southafricanorth,uaenorth,switzerlandnorth,germanywestcentral,norwayeast,westus3,jioindiawest,swedencentral,qatarcentral'"
-            },
             "type": "string"
         },
         "vnetName": {
-	    "defaultValue": "dataguard-vnet",
-	    "metadata": {
-                "description": "The name to assign the created virtual network. The name 'dataguard-vnet' is recommended."
-            },
             "type": "string"
         },
-        "publicIPName": {
-            "defaultValue": "dataguard-public-ip",
-	    "metadata": {
-                "description": "The name to assign the public IP assigned to DataGuard. The name 'dataguard-public-ip' is recommended."
-            },
+        "publicipname": {
             "type": "string"
         },
-        "natGatewayName": {
-	    "defaultValue": "dataguard-nat-gateway",
-	    "metadata": {
-                "description": "The name to assign the DataGuard NAT gateway. The name 'dataguard-nat-gateway' is recommended."
-            },
+        "natgatewayname": {
             "type": "string"
         }
     },
@@ -41,49 +26,38 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "10.10.0.0/16"
+                        "10.0.0.0/16"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "default",
                         "properties": {
-                            "addressPrefix": "10.10.0.0/24",
+                            "addressPrefix": "10.0.0.0/24",
                             "privateEndpointNetworkPolicies": "Disabled"
                         }
                     },
                     {
                         "name": "public-subnet",
                         "properties": {
-                            "addressPrefix": "10.10.1.0/24",
+                            "addressPrefix": "10.0.1.0/24",
                             "privateEndpointNetworkPolicies": "Disabled"
                         }
                     },
                     {
                         "name": "private-subnet",
                         "properties": {
-                            "addressPrefix": "10.10.2.0/24",
-                            "serviceEndpoints": [
-                                {
-                                  "service": "Microsoft.Storage"
-                                },
-                                {
-                                    "service": "Microsoft.AzureCosmosDB"
-                                },
-                                {
-                                    "service": "Microsoft.Sql"
-                                }
-                              ],
+                            "addressPrefix": "10.0.2.0/24",
                             "privateEndpointNetworkPolicies": "Disabled",
                             "natGateway": {
-                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
+                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
                               }
                         }
                     },
                     {
                         "name": "app-gw-subnet",
                         "properties": {
-                            "addressPrefix": "10.10.3.0/24",
+                            "addressPrefix": "10.0.3.0/24",
                             "privateEndpointNetworkPolicies": "Disabled"
                         }
                     }
@@ -91,13 +65,13 @@
                 ]
             },
             "dependsOn": [
-              "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
+              "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
             ]
         },
         {
           "type": "Microsoft.Network/natGateways",
           "apiVersion": "2021-05-01",
-          "name": "[parameters('natGatewayName')]",
+          "name": "[parameters('natgatewayname')]",
           "location": "[parameters('location')]",
           "sku": {
             "name": "Standard"
@@ -106,18 +80,18 @@
             "idleTimeoutInMinutes": 4,
             "publicIpAddresses": [
               {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
               }
             ]
           },
           "dependsOn": [
-            "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPName'))]"
+            "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
           ]
         },
         {
           "type": "Microsoft.Network/publicIPAddresses",
           "apiVersion": "2021-05-01",
-          "name": "[parameters('publicIPName')]",
+          "name": "[parameters('publicipname')]",
           "location": "[parameters('location')]",
           "sku": {
             "name": "Standard"

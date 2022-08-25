@@ -67,7 +67,7 @@
 			"type": "string"
 		},
 		"isHnsEnabled": {
-			"defaultValue": false,
+			"defaultValue": true,
 			"type": "bool"
 		},
 		"isSftpEnabled": {

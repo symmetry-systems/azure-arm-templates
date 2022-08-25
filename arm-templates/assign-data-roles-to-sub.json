@@ -13,9 +13,9 @@
 		}
 	},
 	"variables": {
-        "cosmosReaderRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'cosmos/reader', parameters('identityId')))]",
+        "cosmosReaderRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'cosmos/reader'))]",
 		"cosmosReaderForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8')]",
-        "blobReaderRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'blob/reader'), parameters('identityId'))]",
+        "blobReaderRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'blob/reader'))]",
 		"blobReaderForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
 		"subscriptionScope": "[concat('/subscriptions/', parameters('subscriptionId'))]"
 	},
