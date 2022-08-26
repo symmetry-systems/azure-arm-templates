@@ -10,6 +10,17 @@
         "defaultValue": "dataguard-app-gateway",
         "type": "String"
       },
+      "backendIPAddresses": {
+        "type": "array",
+        "defaultValue": [
+          {
+            "IpAddress": "10.10.0.22"
+          }
+        ],
+        "metadata": {
+          "description": "Backend pool ip addresses"
+        }
+      },
       "sslCertificateData": {
         "metadata": {
           "description": "The base-64 encoded SSL certificate PFX data."
@@ -105,7 +116,7 @@
             {
               "name": "Backend-Pool",
               "properties": {
-                "backendAddresses": []
+                "backendAddresses": "[parameters('backendIPAddresses')]"
               }
             }
           ],

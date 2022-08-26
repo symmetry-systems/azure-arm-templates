@@ -26,28 +26,39 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "10.0.0.0/16"
+                        "10.10.0.0/16"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "default",
                         "properties": {
-                            "addressPrefix": "10.0.0.0/24",
+                            "addressPrefix": "10.10.0.0/24",
                             "privateEndpointNetworkPolicies": "Disabled"
                         }
                     },
                     {
                         "name": "public-subnet",
                         "properties": {
-                            "addressPrefix": "10.0.1.0/24",
+                            "addressPrefix": "10.10.1.0/24",
                             "privateEndpointNetworkPolicies": "Disabled"
                         }
                     },
                     {
                         "name": "private-subnet",
                         "properties": {
-                            "addressPrefix": "10.0.2.0/24",
+                            "addressPrefix": "10.10.2.0/24",
+                            "serviceEndpoints": [
+                                {
+                                  "service": "Microsoft.Storage"
+                                },
+                                {
+                                    "service": "Microsoft.AzureCosmosDB"
+                                },
+                                {
+                                    "service": "Microsoft.Sql"
+                                }
+                              ],
                             "privateEndpointNetworkPolicies": "Disabled",
                             "natGateway": {
                                 "id": "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
@@ -57,7 +68,7 @@
                     {
                         "name": "app-gw-subnet",
                         "properties": {
-                            "addressPrefix": "10.0.3.0/24",
+                            "addressPrefix": "10.10.3.0/24",
                             "privateEndpointNetworkPolicies": "Disabled"
                         }
                     }
