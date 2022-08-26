@@ -12,11 +12,7 @@
       },
       "backendIPAddresses": {
         "type": "array",
-        "defaultValue": [
-          {
-            "IpAddress": "10.10.2.22"
-          }
-        ],
+        "defaultValue": "10.10.2.22",
         "metadata": {
           "description": "Backend pool ip addresses"
         }
@@ -116,7 +112,11 @@
             {
               "name": "Backend-Pool",
               "properties": {
-                "backendAddresses": "[parameters('backendIPAddresses')]"
+                "backendAddresses": [
+                  {
+                    "IpAddress": "[parameters('backendIPAddresses')]"
+                  }
+                ]
               }
             }
           ],
