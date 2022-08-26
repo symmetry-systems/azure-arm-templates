@@ -14,7 +14,7 @@
         "type": "array",
         "defaultValue": [
           {
-            "IpAddress": "10.10.0.22"
+            "IpAddress": "10.10.2.22"
           }
         ],
         "metadata": {
