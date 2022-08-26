@@ -21,7 +21,7 @@
             "type": "string"
         },
         "privateIpAddress": {
-                "defaultValue": "10.10.0.22",
+                "defaultValue": "10.10.2.22",
                 "type": "string"
         },
         "osDiskType": {
