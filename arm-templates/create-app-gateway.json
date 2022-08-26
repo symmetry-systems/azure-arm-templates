@@ -11,7 +11,7 @@
         "type": "String"
       },
       "backendIPAddresses": {
-        "type": "array",
+        "type": "String",
         "defaultValue": "10.10.2.22",
         "metadata": {
           "description": "Backend pool ip addresses"
