@@ -4,35 +4,30 @@
 	"parameters": {
 		"billingAccountId": {
 			"type": "string",
-			// "defaultValue": "a685f040-47fe-5e3f-2992-5ae889ed21c4:2f596f4c-568b-4b84-9818-ea9d2f94395a_2019-05-31",
 			"metadata": {
 				"description": "Billing account name under which subscription is to be created."
 			}
 		},
 		"billingProfileId": {
 			"type": "string",
-			// "defaultValue": "YAFH-TNXC-BG7-PGB",
 			"metadata": {
 				"description": "Billing profile name under which subscription is to be created."
 			}
 		},
 		"invoiceSectionId": {
 			"type": "string",
-			// "defaultValue": "IWAI-T3SI-PJA-PGB",
 			"metadata": {
 				"description": "Invoice section name under which subscription is to be created."
 			}
 		},
 		"subscriptionAlias": {
 			"type": "string",
-			// "defaultValue": "temp-dg-sub",
 			"metadata": {
 				"description": "Alias to assign to the subscription"
 			}
 		},
 		"subscriptionDisplayName": {
 			"type": "string",
-			// "defaultValue": "Template Created DG Subscription",
 			"metadata": {
 				"description": "Display name for the subscription"
 			}

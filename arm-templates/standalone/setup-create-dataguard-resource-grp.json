@@ -10,7 +10,6 @@
 		},
 		"resourceGroupName": {
 			"type": "string",
-			// "defaultValue": "dataguard-resource-grp",
 			"metadata": {
 				"description": "Resource group name for dataguard."
 			}

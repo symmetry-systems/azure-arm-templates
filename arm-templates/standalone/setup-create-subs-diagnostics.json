@@ -4,7 +4,6 @@
 	"parameters": {
 		"subscriptionsToMonitor": {
 			"type": "array", 
-			// "defaultValue": ["638dc5e8-9d48-485c-96f6-877ba307584e","6aa465aa-0075-40bc-a8da-cc33ef685b94", "ba296500-8b0a-4ca7-abff-1293cdd059eb", "a8bffe63-913d-401d-afd6-1f8a9b93787b"]
 			"defaultValue": ["replace sub id 1 here", "replace sub id 2 here etc."]
 		},
 		"storageAccountId": {

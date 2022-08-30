@@ -10,14 +10,12 @@
 		},
 		"identityName": {
 			"type": "string",
-			// "defaultValue": "template-created-dg-id",
 			"metadata": {
 				"description": "Specifies the name of the user-assigned managed identity used for dataguard."
 			}
 		},
 		"resourceGroupName": {
 			"type": "string",
-			// "defaultValue": "dataguard-resource-grp",
 			"metadata": {
 				"description": "Resource group name for dataguard."
 			}
