@@ -55,7 +55,7 @@
 								}
 							},
 							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/assign-reader-role-to-root-group.json",
+								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/assign-reader-role-to-root-group.json",
 								"contentVersion": "1.0.0.0"
 							}
 						}

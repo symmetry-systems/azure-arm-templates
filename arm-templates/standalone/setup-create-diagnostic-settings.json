@@ -70,7 +70,7 @@
 									}
 								},
 								"templateLink": {
-									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-diagnostic-settings.json",
+									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-diagnostic-settings.json",
 									"contentVersion": "1.0.0.0"
 								}
 							}

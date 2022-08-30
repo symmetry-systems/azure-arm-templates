@@ -136,7 +136,7 @@
 								}
 							},
 							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-virtual-network.json",
+								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-virtual-network.json",
 								"contentVersion": "1.0.0.0"
 							}
 						}

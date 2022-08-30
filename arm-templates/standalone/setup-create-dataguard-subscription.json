@@ -92,7 +92,7 @@
 					}
 				},
 				"templateLink": {
-					"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-dataguard-subscription.json",
+					"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-dataguard-subscription.json",
 					"contentVersion": "1.0.0.0"
 				}
 			}

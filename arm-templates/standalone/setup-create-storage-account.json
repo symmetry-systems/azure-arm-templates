@@ -91,7 +91,7 @@
 									}
 								},
 								"templateLink": {
-									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-pvt-storage-accnt.json",
+									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-pvt-storage-accnt.json",
 									"contentVersion": "1.0.0.0"
 								}
 							}
@@ -113,7 +113,7 @@
 									}
 								},
 								"templateLink": {
-									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-private-dns-zone.json",
+									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-private-dns-zone.json",
 									"contentVersion": "1.0.0.0"
 								}
 							}
