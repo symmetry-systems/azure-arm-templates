@@ -7,8 +7,8 @@
 param(
     [string]$TenantID,
     [string]$SubscriptionName,
-    [string]$ManagedIdentityName='template-created-dg-id',
-    [string]$ResourceGroupName='dataguard-resource-grp'
+    [string]$ManagedIdentityName,
+    [string]$ResourceGroupName
 )
 
 $ValidData = $true
