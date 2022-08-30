@@ -9,7 +9,7 @@
 		"storageAccountId": {
             "type": "string", 
             "metadata": {
-                "description": "Dataguard storage account id to which to send the diagnostic activity logs."
+                "description": "DataGuard Storage Account ID to which to send the logs."
             }
         }
 	},
@@ -20,7 +20,7 @@
 		{
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2019-10-01",
-			"name": "[concat(variables('nestedCreateActivityLogDiagSettingDeployment'), '-', copyIndex())]",
+			"name": "pid-187b466a-e448-46dc-840b-e663ce1a9bf3",
 			"location": "[deployment().location]",
 			"properties": {
 				"expressionEvaluationOptions": {
@@ -70,7 +70,7 @@
 									}
 								},
 								"templateLink": {
-									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-diagnostic-setting-for-mgm-grp.json",
+									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-diagnostic-settings.json",
 									"contentVersion": "1.0.0.0"
 								}
 							}

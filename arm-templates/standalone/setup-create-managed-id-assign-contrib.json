@@ -103,7 +103,7 @@
 								}
 							},
 							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-dataguard-identity.json",
+								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-dataguard-identity.json",
 								"contentVersion": "1.0.0.0"
 							}
 						}
@@ -173,7 +173,7 @@
 								}
 							},
 							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/assign-contributor-role-to-sub.json",
+								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/assign-contributor-role-to-sub.json",
 								"contentVersion": "1.0.0.0"
 							}
 						}

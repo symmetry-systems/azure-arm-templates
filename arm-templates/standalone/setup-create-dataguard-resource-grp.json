@@ -92,7 +92,7 @@
 								}
 							},
 							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/create-dataguard-resource-group.json",
+								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-dataguard-resource-group.json",
 								"contentVersion": "1.0.0.0"
 							}
 						}
