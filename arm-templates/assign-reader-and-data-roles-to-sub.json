@@ -42,5 +42,16 @@
 			"scope": "[variables('subscriptionScope')]",
 			"principalType": "ServicePrincipal"
 		}
+	},
+	{
+		"type": "Microsoft.Authorization/roleAssignments",
+		"apiVersion": "2021-04-01-preview",
+		"name": "[variables('readerRoleAssignmentId')]",
+		"properties": {
+			"roleDefinitionId": "[variables('readerForSubRoleDefinitionId')]",
+			"principalId": "[parameters('identityId')]",
+			"scope": "[variables('subscriptionScope')]",
+			"principalType": "ServicePrincipal"
+		}
 	}]
 }
