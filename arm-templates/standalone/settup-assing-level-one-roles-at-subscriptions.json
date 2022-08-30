@@ -70,7 +70,7 @@
 									}
 								},
 								"templateLink": {
-									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/assign-reader-and-data-roles-to-sub.json",
+									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/assign-level-one-roles-to-sub.json",
 									"contentVersion": "1.0.0.0"
 								}
 							}
