@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"identityId": {
+			"type": "string",
+			"metadata": {
+				"description": "Specifies the name of the user-assigned managed identity."
+			}
+		},
+		"subscriptionId": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"readerRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'reader'))]",
+		"readerForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+		"subscriptionScope": "[concat('/subscriptions/', parameters('subscriptionId'))]"
+	},
+	"resources": [{
+		"type": "Microsoft.Authorization/roleAssignments",
+		"apiVersion": "2021-04-01-preview",
+		"name": "[variables('readerRoleAssignmentId')]",
+		"properties": {
+			"roleDefinitionId": "[variables('readerForSubRoleDefinitionId')]",
+			"principalId": "[parameters('identityId')]",
+			"scope": "[variables('subscriptionScope')]",
+			"principalType": "ServicePrincipal"
+		}
+	}]
+}

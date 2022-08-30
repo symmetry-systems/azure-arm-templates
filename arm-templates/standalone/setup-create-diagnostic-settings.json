@@ -1,0 +1,102 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"subscriptionsToMonitor": {
+			"type": "array", 
+			"defaultValue": ["replace sub id 1 here", "replace sub id 2 here etc."]
+		},
+		"storageAccountId": {
+            "type": "string", 
+            "metadata": {
+                "description": "DataGuard Storage Account ID to which to send the logs."
+            }
+        }
+	},
+	"variables": {
+		"nestedCreateActivityLogDiagSettingDeployment": "create-activityLog-diagSettings"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[concat(variables('nestedCreateActivityLogDiagSettingDeployment'), '-', copyIndex())]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"storageAccountId": {
+						"value": "[parameters('storageAccountId')]"
+					},
+					"subscriptionId": {
+						"value": "[parameters('subscriptionsToMonitor')[copyIndex()]]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"storageAccountId": {
+							"type": "string",
+							"metadata": {
+								"description": "dataguard storage account"
+							}
+						},
+						"subscriptionId":{
+							"type": "string"
+						}
+					},
+					"resources": [
+						{
+							"type": "Microsoft.Resources/deployments",
+							"apiVersion": "2019-10-01",
+							"name": "enable-activity-log-at-root",
+							"location": "[deployment().location]",
+							"subscriptionId": "[parameters('subscriptionId')]",
+							"properties": {
+								"expressionEvaluationOptions": {
+									"scope": "inner"
+								},
+								"mode": "Incremental",
+								"parameters": {
+									"storageAccountId": {
+										"value": "[parameters('storageAccountId')]"
+									},
+									"settingName": {
+										"value": "dg-diagnostic-settings"
+									}
+								},
+								"templateLink": {
+									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-diagnostic-settings.json",
+									"contentVersion": "1.0.0.0"
+								}
+							}
+						}
+					]
+
+				}
+			},
+			"copy": {
+				"name": "subscriptionsToMonitorcopy",
+				"count": "[length(parameters('subscriptionsToMonitor'))]"
+			}
+		},
+		{
+		"apiVersion": "2020-06-01",
+		"name": "pid-187b466a-e448-46dc-840b-e663ce1a9bf3",
+		"type": "Microsoft.Resources/deployments",
+		"location": "[deployment().location]",
+		"properties": {
+			"mode": "Incremental",
+			"template": {
+				"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+				"contentVersion": "1.0.0.0",
+				"resources": []
+			}
+		}
+	}
+	]
+}

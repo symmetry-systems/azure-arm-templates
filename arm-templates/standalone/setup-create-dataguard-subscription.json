@@ -1,0 +1,101 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"billingAccountId": {
+			"type": "string",
+			"metadata": {
+				"description": "Billing account name under which subscription is to be created."
+			}
+		},
+		"billingProfileId": {
+			"type": "string",
+			"metadata": {
+				"description": "Billing profile name under which subscription is to be created."
+			}
+		},
+		"invoiceSectionId": {
+			"type": "string",
+			"metadata": {
+				"description": "Invoice section name under which subscription is to be created."
+			}
+		},
+		"subscriptionAlias": {
+			"type": "string",
+			"metadata": {
+				"description": "Alias to assign to the subscription"
+			}
+		},
+		"subscriptionDisplayName": {
+			"type": "string",
+			"metadata": {
+				"description": "Display name for the subscription"
+			}
+		},
+		"subscriptionWorkload": {
+			"type": "string",
+			"defaultValue": "Production",
+			"allowedValues": [
+				"Production"
+			],
+			"metadata": {
+				"description": "Workload type for the subscription"
+			}
+		}
+	},
+	"variables": {
+		"setupSubscriptionDeployment": "[format('setup-{0}', parameters('subscriptionAlias'))]"
+	},
+	"resources": [
+		{
+			"apiVersion": "2020-06-01",
+			"name": "pid-187b466a-e448-46dc-840b-e663ce1a9bf3",
+			"location": "[deployment().location]",
+			"type": "Microsoft.Resources/deployments",
+			"properties": {
+				"mode": "Incremental",
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"resources": []
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('setupSubscriptionDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"billingAccountId": {
+						"value": "[parameters('billingAccountId')]"
+					},
+					"billingProfileId": {
+						"value": "[parameters('billingProfileId')]"
+					},
+					"invoiceSectionId": {
+						"value": "[parameters('invoiceSectionId')]"
+					},
+					"subscriptionAlias": {
+						"value": "[parameters('subscriptionAlias')]"
+					},
+					"subscriptionDisplayName": {
+						"value": "[parameters('subscriptionDisplayName')]"
+					},
+					"subscriptionWorkload": {
+						"value": "[parameters('subscriptionWorkload')]"
+					}
+				},
+				"templateLink": {
+					"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/create-dataguard-subscription.json",
+					"contentVersion": "1.0.0.0"
+				}
+			}
+		}
+	]
+}

@@ -20,6 +20,10 @@
             "defaultValue":"Basic",
             "type": "string"
         },
+        "privateIpAddress": {
+                "defaultValue": "10.10.2.42",
+                "type": "string"
+        },
         "osDiskType": {
             "defaultValue": "Premium_LRS",
             "type": "string"
@@ -31,19 +35,12 @@
         "adminUsername": {
             "defaultValue": "ubuntu",
             "type": "string"
-        },
-        "vnetName": {
-            "defaultValue": "dataguard-vnet",
-            "metadata": {
-                "description": "The virtual network the DataGuard bastion will be attached to. If using the default ARM templates, this should be 'dataguard-vnet'."
-            },
-            "type": "string"
         }
     },
     "variables": {
-        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', 'dataguard-vnet')]",
         "subnetRef": "[concat(variables('vnetId'),'/subnets/private-subnet')]",
-        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-interface')]",
+        "networkInterfaceName": "[concat(parameters('vmName'), '-', 'network-intr-face')]",
         "networkSecurityGroupName": "[concat(parameters('vmName'), '-', 'nsg')]",
         "publicIpAddressName": "[concat(parameters('vmName'), '-', 'ip')]",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
@@ -66,7 +63,8 @@
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
-                            "privateIPAllocationMethod": "Dynamic"
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('privateIpAddress')]"
                         }
                     }
                 ],

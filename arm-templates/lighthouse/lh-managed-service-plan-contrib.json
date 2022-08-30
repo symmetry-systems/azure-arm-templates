@@ -1,0 +1,95 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/subscriptionDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"mspOfferName": {
+			"type": "string",
+			"metadata": {
+				"description": "Specify a unique name for your offer!"
+			},
+			"defaultValue": "Dataguard Lighthouse Test"
+		},
+		"mspOfferDescription": {
+			"type": "string",
+			"metadata": {
+				"description": "Name of the Managed Service Provider offering"
+			},
+			"defaultValue": "Test ARM Template for dataguard deployment through Lighthouse"
+		},
+		"managedByTenantId": {
+			"type": "string",
+			"metadata": {
+				"description": "Specify the tenant id of the Managed Service Provider"
+			},
+			"defaultValue": "938e7f1c-a9cc-47d3-897f-a12d33bf6c38"
+		},
+		"authorizations": {
+			"type": "array",
+			"metadata": {
+				"description": "Specify an array of objects, containing tuples of Azure Active Directory principalId, a Azure roleDefinitionId, and an optional principalIdDisplayName. The roleDefinition specified is granted to the principalId in the provider's Active Directory and the principalIdDisplayName is visible to customers."
+			},
+			"defaultValue": [{
+					"principalId": "c87557fc-cc09-4eaa-959a-a160bd9d491d",
+					"roleDefinitionId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+					"principalIdDisplayName": "test-lighthouse-group"
+				},
+				{
+					// For log diagnostics contributor
+					"principalId": "c87557fc-cc09-4eaa-959a-a160bd9d491d",
+					"roleDefinitionId": "92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+					"principalIdDisplayName": "test-lighthouse-group"
+				},
+				{
+					// for sql security Manager
+					"principalId": "c87557fc-cc09-4eaa-959a-a160bd9d491d",
+					"roleDefinitionId": "056cd41c-7e88-42e1-933e-88ba6a50c9c3",
+					"principalIdDisplayName": "test-lighthouse-group"
+				},
+				{
+					// for sql contributor
+					"principalId": "c87557fc-cc09-4eaa-959a-a160bd9d491d",
+					"roleDefinitionId": "6d8ee4ec-f05a-4a1d-8b00-a9b17e38b437",
+					"principalIdDisplayName": "test-lighthouse-group"
+				}
+				
+			]
+		}
+	},
+	"variables": {
+		"mspRegistrationName": "[guid(parameters('mspOfferName'))]",
+		"mspAssignmentName": "[guid(parameters('mspOfferName'))]"
+	},
+	"resources": [{
+			"type": "Microsoft.ManagedServices/registrationDefinitions",
+			"apiVersion": "2020-02-01-preview",
+			"name": "[variables('mspRegistrationName')]",
+			"properties": {
+				"registrationDefinitionName": "[parameters('mspOfferName')]",
+				"description": "[parameters('mspOfferDescription')]",
+				"managedByTenantId": "[parameters('managedByTenantId')]",
+				"authorizations": "[parameters('authorizations')]"
+			}
+		},
+		{
+			"type": "Microsoft.ManagedServices/registrationAssignments",
+			"apiVersion": "2020-02-01-preview",
+			"name": "[variables('mspAssignmentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+			],
+			"properties": {
+				"registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+			}
+		}
+	],
+	"outputs": {
+		"mspOfferName": {
+			"type": "string",
+			"value": "[concat('Managed by', ' ', parameters('mspOfferName'))]"
+		},
+		"authorizations": {
+			"type": "array",
+			"value": "[parameters('authorizations')]"
+		}
+	}
+}

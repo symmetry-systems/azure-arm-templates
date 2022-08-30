@@ -1,0 +1,79 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subnetId": {
+            "type": "string"
+        },
+        "bastionHostName": {
+            "defaultValue": "dataguard-temlate-bastion",
+            "type": "string"
+        },
+        "bastionHostSku": {
+            "defaultValue": "Standard",
+            "type": "string"
+        },
+        "bastionHostScaleUnits": {
+            "defaultValue": 2,
+            "type": "int"
+        },
+        "enableIpConnect": {
+            "defaultValue": false,
+            "type": "bool"
+        },
+        "enableTunneling": {
+            "defaultValue": false,
+            "type": "bool"
+        },
+        "publicIpAddressName": {
+            "defaultValue": "dataguard-vnet-ip", 
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-08-01",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "name": "[parameters('publicIpAddressName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            },
+            "tags": {}
+        },
+        {
+            "apiVersion": "2020-11-01",
+            "type": "Microsoft.Network/bastionHosts",
+            "name": "[parameters('bastionHostName')]",
+            "sku": {
+                "name": "[parameters('bastionHostSku')]"
+            },
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+            ],
+            "properties": {
+                "enableIpConnect": "[parameters('enableIpConnect')]",
+                "enableTunneling": "[parameters('enableTunneling')]",
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "properties": {
+                            "subnet": {
+                                "id": "[parameters('subnetId')]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                            }
+                        }
+                    }
+                ],
+                "scaleUnits": "[parameters('bastionHostScaleUnits')]"
+            },
+            "tags": {}
+        }
+    ]
+}

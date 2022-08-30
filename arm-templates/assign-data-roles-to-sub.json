@@ -1,0 +1,44 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"identityId": {
+			"type": "string",
+			"metadata": {
+				"description": "Specifies the name of the user-assigned managed identity."
+			}
+		},
+		"subscriptionId": {
+			"type": "string"
+		}
+	},
+	"variables": {
+        "cosmosReaderRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'cosmos/reader'))]",
+		"cosmosReaderForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8')]",
+        "blobReaderRoleAssignmentId": "[guid(concat('/subscriptions/', parameters('subscriptionId'), 'blob/reader'))]",
+		"blobReaderForSubRoleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
+		"subscriptionScope": "[concat('/subscriptions/', parameters('subscriptionId'))]"
+	},
+	"resources": [{
+		"type": "Microsoft.Authorization/roleAssignments",
+		"apiVersion": "2021-04-01-preview",
+		"name": "[variables('blobReaderRoleAssignmentId')]",
+		"properties": {
+			"roleDefinitionId": "[variables('blobReaderForSubRoleDefinitionId')]",
+			"principalId": "[parameters('identityId')]",
+			"scope": "[variables('subscriptionScope')]",
+			"principalType": "ServicePrincipal"
+		}
+	},
+	{
+		"type": "Microsoft.Authorization/roleAssignments",
+		"apiVersion": "2021-04-01-preview",
+		"name": "[variables('cosmosReaderRoleAssignmentId')]",
+		"properties": {
+			"roleDefinitionId": "[variables('cosmosReaderForSubRoleDefinitionId')]",
+			"principalId": "[parameters('identityId')]",
+			"scope": "[variables('subscriptionScope')]",
+			"principalType": "ServicePrincipal"
+		}
+	}]
+}
