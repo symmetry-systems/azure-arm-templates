@@ -86,46 +86,114 @@ $body = @"
       "eventHubName": null,
       "metrics": [],
       "logs": [
-        {
-          "category": "AuditLogs",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        },
-        {
-          "category": "SignInLogs",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        },
-        {
-          "category": "ServicePrincipalSignInLogs",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        }, 
-        {
-          "category": "ManagedIdentitySignInLogs",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        }, 
-        {
-          "category": "ProvisioningLogs",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        }, 
-        {
-          "category": "ADFSSignInLogs",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        }, 
-        {
-          "category": "RiskyUsers",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        }, 
-        {
-          "category": "UserRiskEvents",
-          "enabled": true,
-          "retentionPolicy": { "enabled": false, "days": 0 }
-        }
+            {
+                "category": "AuditLogs",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "SignInLogs",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "ServicePrincipalSignInLogs",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "ManagedIdentitySignInLogs",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "ProvisioningLogs",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "ADFSSignInLogs",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "RiskyUsers",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "UserRiskEvents",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "NonInteractiveUserSignInLogs",
+                "categoryGroup": null,
+                "enabled": false,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "NetworkAccessTrafficLogs",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "RiskyServicePrincipals",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            },
+            {
+                "category": "ServicePrincipalRiskEvents",
+                "categoryGroup": null,
+                "enabled": true,
+                "retentionPolicy": {
+                    "days": 0,
+                    "enabled": false
+                }
+            }
       ]
     },
     "identity": null
