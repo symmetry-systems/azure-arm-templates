@@ -14,13 +14,13 @@
 		}
 	},
 	"variables": {
-		"nestedIdentityOtherReaderRoleAssignmentDeployment": "[format('assign-data-roles-to-dg-app-id')]"
+		"nestedIdentityOtherReaderRoleAssignmentDeployment": "[format('assign-reader-and-data-roles-to-dg-app-id')]"
 	},
 	"resources": [
 		{
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2019-10-01",
-			"name": "pid-187b466a-e448-46dc-840b-e663ce1a9bf3",
+			"name": "[concat(variables('nestedIdentityOtherReaderRoleAssignmentDeployment'), '-', copyIndex())]",
 			"location": "[deployment().location]",
 			"properties": {
 				"expressionEvaluationOptions": {
@@ -70,7 +70,7 @@
 									}
 								},
 								"templateLink": {
-									"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/individual/templates/assign-reader-and-data-roles-to-sub.json",
+									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/arm-templates-sachin/arm-templates/assign-reader-and-data-roles-to-sub.json",
 									"contentVersion": "1.0.0.0"
 								}
 							}
@@ -83,6 +83,19 @@
 				"name": "subscriptionsToMonitorcopy",
 				"count": "[length(parameters('subscriptionsToMonitor'))]"
 			}
+		},
+		{
+		"apiVersion": "2020-06-01",
+		"name": "pid-187b466a-e448-46dc-840b-e663ce1a9bf3",
+		"type": "Microsoft.Resources/deployments",
+		"properties": {
+			"mode": "Incremental",
+			"template": {
+				"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+				"contentVersion": "1.0.0.0",
+				"resources": []
+			}
 		}
+	}
 	]
 }
