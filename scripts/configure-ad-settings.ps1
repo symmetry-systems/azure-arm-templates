@@ -7,7 +7,8 @@
 param(
     [string]$TenantID,
     [string]$SubscriptionName,
-    [string]$ResourceGroupName
+    [string]$ResourceGroupName,
+    [string]$StorageAccountId
 )
 
 $ValidData = $true
@@ -26,16 +27,17 @@ if(-not $TenantID)
      Write-Host "ResourceGroupName was null. "
      $ValidData = $false
  }
+ if(-not $StorageAccountId)
+ {
+     Write-Host "StorageAccountId was null. "
+     $ValidData = $false
+ }
 
  if (-not $ValidData) 
  {
     Write-Host "Please rerun this script and pass valid parameters."                 
     return   
  } 
-
-# Install the module if needed: Install-Module AzureAD
-# Install-Module Microsoft.Graph -Scope CurrentUser
-# Import-Module Microsoft.Graph
 
 Connect-AzureAD -TenantId $TenantID -erroraction 'silentlycontinue'
 Write-Host "Connected to AD..."
@@ -53,7 +55,7 @@ function Get-AzCachedAccessToken()
     if(-not $azureRmProfile.Accounts.Count) {
         Write-Error "Ensure you have logged in before calling this function."    
     }
-  
+
     $currentAzureContext = Get-AzContext
     $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
     Write-Debug ("Getting access token for tenant" + $currentAzureContext.Tenant.TenantId)
@@ -61,13 +63,9 @@ function Get-AzCachedAccessToken()
     $token.AccessToken
 }
 $token = Get-AzCachedAccessToken
-$ruleName = "dataguard-ad-diag-setting"
+$ruleName = "dataguard-managed-id-ad-diag-setting"
 
 Write-Host "Setting subscription: $($SubscriptionName)"
-
-
-$StorageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName
-$storageAccountId = $StorageAccount.Id
 
 Write-Host "Sending AD Audit logs to storage account: $($storageAccountId)"
 
