@@ -7,7 +7,6 @@
 param(
     [string]$TenantID,
     [string]$SubscriptionName,
-    [string]$ManagedIdentityName,
     [string]$ResourceGroupName
 )
 
@@ -20,11 +19,6 @@ if(-not $TenantID)
  if(-not $SubscriptionName)
  {
      Write-Host "SubscriptionName was null. "
-     $ValidData = $false
- }
- if(-not $ManagedIdentityName)
- {
-     Write-Host "ManagedIdentityName was null. "
      $ValidData = $false
  }
  if(-not $ResourceGroupName)
@@ -48,12 +42,30 @@ Write-Host "Connected to AD..."
 
 Start-Sleep -Seconds 10
 
+Set-AzContext -Tenant $TenantID -Subscription $SubscriptionName
+
+function Get-AzCachedAccessToken()
+{
+    $ErrorActionPreference = 'Stop'
+
+    $azureRmProfileModuleVersion = (Get-Module Az.Profile).Version
+    $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+    if(-not $azureRmProfile.Accounts.Count) {
+        Write-Error "Ensure you have logged in before calling this function."    
+    }
+  
+    $currentAzureContext = Get-AzContext
+    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+    Write-Debug ("Getting access token for tenant" + $currentAzureContext.Tenant.TenantId)
+    $token = $profileClient.AcquireAccessToken($currentAzureContext.Tenant.TenantId)
+    $token.AccessToken
+}
 $token = Get-AzCachedAccessToken
-$ruleName = "dataguard-managed-id-ad-diag-setting"
+$ruleName = "dataguard-ad-diag-setting"
 
 Write-Host "Setting subscription: $($SubscriptionName)"
 
-Set-AzContext -Subscription $SubscriptionName
+
 $StorageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName
 $storageAccountId = $StorageAccount.Id
 
