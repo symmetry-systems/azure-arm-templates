@@ -5,13 +5,13 @@
 		"subscriptionId": {
 			"type": "string",
 			"metadata": {
-				"description": "Subscription Id for dataguard."
+				"description": "Subscription Id for DataGuard."
 			}
 		},
 		"resourceGroupName": {
 			"type": "string",
 			"metadata": {
-				"description": "Resource group name for dataguard."
+				"description": "Resource group name for DataGuard."
 			}
 		},
 		"location": {

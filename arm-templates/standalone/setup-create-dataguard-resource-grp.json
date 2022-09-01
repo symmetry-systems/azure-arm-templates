@@ -5,20 +5,20 @@
 		"subscriptionId": {
 			"type": "string",
 			"metadata": {
-				"description": "Subscription Id for dataguard."
+				"description": "Subscription Id for DataGuard."
 			}
 		},
 		"resourceGroupName": {
 			"type": "string",
 			"metadata": {
-				"description": "Resource group name for dataguard."
+				"description": "Resource group name for DataGuard."
 			}
 		},
 		"location": {
 			"type": "string",
 			"defaultValue": "EastUs",
 			"metadata": {
-				"description": "The Azure location where the managed identity should be created."
+				"description": "The Azure location where the managed identity should be created. List of available regions for the resource type are: 'westus,eastus,northeurope,westeurope,eastasia,southeastasia,northcentralus,southcentralus,centralus,eastus2,japaneast,japanwest,brazilsouth,australiaeast,australiasoutheast,centralindia,southindia,westindia,canadacentral,canadaeast,westcentralus,westus2,ukwest,uksouth,koreacentral,koreasouth,francecentral,australiacentral,southafricanorth,uaenorth,switzerlandnorth,germanywestcentral,norwayeast,westus3,jioindiawest,swedencentral,qatarcentral."
 			}
 		}
 	},
@@ -54,7 +54,7 @@
 						"subscriptionId": {
 							"type": "string",
 							"metadata": {
-								"description": "subscriptionId for the deployment"
+								"description": "Subscription ID for the deployment"
 							}
 						},
 						"resourceGroupName": {
@@ -68,7 +68,7 @@
 							"type": "string",
 							"defaultValue": "[deployment().location]",
 							"metadata": {
-								"description": "Location for the deployments and the resources"
+								"description": "Location for the deployments and the resources. List of available regions for the resource type are: 'westus,eastus,northeurope,westeurope,eastasia,southeastasia,northcentralus,southcentralus,centralus,eastus2,japaneast,japanwest,brazilsouth,australiaeast,australiasoutheast,centralindia,southindia,westindia,canadacentral,canadaeast,westcentralus,westus2,ukwest,uksouth,koreacentral,koreasouth,francecentral,australiacentral,southafricanorth,uaenorth,switzerlandnorth,germanywestcentral,norwayeast,westus3,jioindiawest,swedencentral,qatarcentral."
 							}
 						}
 					},

@@ -5,7 +5,7 @@
 		"subscriptionId": {
 			"type": "string",
 			"metadata": {
-				"description": "Subscription Id for dataguard."
+				"description": "Subscription Id for DataGuard."
 			}
 		},
 		"subscriptionsToMonitor": {

@@ -4,6 +4,9 @@
 	"parameters": {
 		"subscriptionsToMonitor": {
 			"type": "array", 
+			"metadata": {
+				"description": "Array of Azure Subscription IDs to monitor."
+			},
 			"defaultValue": ["replace sub id 1 here", "replace sub id 2 here etc."]
 		},
 		"storageAccountId": {
