@@ -38,7 +38,8 @@
       }
     },
     "variables": {
-      "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+      "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+      "AppGW_AppFW_Pol_name": "WAF-dg"
     },
     "resources": [
       {
