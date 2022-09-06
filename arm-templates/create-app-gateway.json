@@ -242,7 +242,7 @@
         "type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
         "apiVersion": "2021-08-01",
         "name": "[variables('AppGW_AppFW_Pol_name')]",
-        "location": "[parameters('location')]",
+        "location": "eastus",
         "properties": {
           "customRules": [
             {
