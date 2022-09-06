@@ -63,6 +63,7 @@
         "name": "[parameters('applicationGateways_DataGuard_App_GW_name')]",
         "location": "eastus",
         "dependsOn": [
+          "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('AppGW_AppFW_Pol_name'))]",
           "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_App_GW_IP_name'))]"
         ],
         "properties": {
@@ -145,6 +146,9 @@
             {
               "name": "http-listener",
               "properties": {
+                "firewallPolicy": {
+                  "id": "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('AppGW_AppFW_Pol_name'))]"
+                },
                 "frontendIPConfiguration": {
                   "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_DataGuard_App_GW_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
                 },
@@ -159,6 +163,9 @@
             {
               "name": "https-listener",
               "properties": {
+                "firewallPolicy": {
+                  "id": "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('AppGW_AppFW_Pol_name'))]"
+                },
                 "frontendIPConfiguration": {
                   "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_DataGuard_App_GW_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
                 },
@@ -228,6 +235,49 @@
           ],
           "privateLinkConfigurations": [],
           "enableHttp2": false
+        }
+      },
+      {
+        "type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+        "apiVersion": "2021-08-01",
+        "name": "[variables('AppGW_AppFW_Pol_name')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "customRules": [
+            {
+              "name": "CustRule01",
+              "priority": 100,
+              "ruleType": "MatchRule",
+              "action": "Block",
+              "matchConditions": [
+                {
+                  "matchVariables": [
+                    {
+                      "variableName": "RemoteAddr"
+                    }
+                  ],
+                  "operator": "IPMatch",
+                  "negationConditon": true,
+                  "matchValues": [
+                    "35.167.205.220/32"
+                  ]
+                }
+              ]
+            }
+          ],
+          "policySettings": {
+            "requestBodyCheck": false,
+            "state": "Enabled",
+            "mode": "Prevention"
+          },
+          "managedRules": {
+            "managedRuleSets": [
+              {
+                "ruleSetType": "OWASP",
+                "ruleSetVersion": "3.1"
+              }
+            ]
+          }
         }
       }
     ]
