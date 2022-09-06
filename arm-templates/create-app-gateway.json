@@ -39,7 +39,7 @@
     },
     "variables": {
       "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-      "AppGW_AppFW_Pol_name": "WAF-dg"
+      "AppGW_AppFW_Pol_name": "dataguard-waf"
     },
     "resources": [
       {
@@ -68,6 +68,9 @@
           "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_App_GW_IP_name'))]"
         ],
         "properties": {
+          "firewallPolicy": {
+            "id": "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('AppGW_AppFW_Pol_name'))]"
+          },
           "sku": {
             "name": "WAF_v2",
             "tier": "WAF_v2",
@@ -147,9 +150,6 @@
             {
               "name": "http-listener",
               "properties": {
-                "firewallPolicy": {
-                  "id": "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('AppGW_AppFW_Pol_name'))]"
-                },
                 "frontendIPConfiguration": {
                   "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_DataGuard_App_GW_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
                 },
@@ -164,9 +164,6 @@
             {
               "name": "https-listener",
               "properties": {
-                "firewallPolicy": {
-                  "id": "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('AppGW_AppFW_Pol_name'))]"
-                },
                 "frontendIPConfiguration": {
                   "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_DataGuard_App_GW_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
                 },
