@@ -1,0 +1,24 @@
+{
+    "type": "Microsoft.Resources/deploymentScripts",
+    "apiVersion": "2020-10-01",
+    "name": "runPowerShellInline",
+    "location": "[resourceGroup().location]",
+    "kind": "AzurePowerShell",
+    "properties": {
+      "forceUpdateTag": "1",
+      "containerSettings": {
+        "containerGroupName": "customaci"
+      },
+      "storageAccountSettings": {
+        "storageAccountName": "tempStorageAccount",
+        "storageAccountKey": "myKey"
+      },
+      "azPowerShellVersion": "6.4",
+      "arguments": "-name \\\"DG\\\"",
+      "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/scripts/list-subscriptions.ps1",
+      "supportingScriptUris":[],
+      "timeout": "PT30M",
+      "cleanupPreference": "OnSuccess",
+      "retentionInterval": "P1D"
+    }
+  }
