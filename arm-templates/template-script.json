@@ -2,23 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "identity": {
-      "type": "string"
-    },
-    "utcValue": {
-      "type": "string",
-      "defaultValue": "[utcNow()]"
-    },
     "appName": {
       "type": "string",
       "defaultValue": "dg-app-registration"
     }
   },
   "variables": {
-    "cliResourceName": "AzCLIAppRegDeploymentScript",
-    "aadAppUri": "[concat('https://', parameters('appName'), 'azurewebsites.net')]",
-    "aadAppRedirectUri": "[concat('https://', parameters('appName'), 'azurewebsites.net/signin-oidc')]",
-    "cliArg": "[concat(parameters('appName'), ' ', variables('aadAppUri'), ' ', variables('aadAppRedirectUri'))]"
+    "cliResourceName": "AzCLIAppRegDeploymentScript"
   },
   "resources": [
     {
@@ -27,19 +17,17 @@
       "name": "[variables('cliResourceName')]",
       "location": "[resourceGroup().location]",
       "kind": "AzureCLI",
-      "identity": {
-        "type": "UserAssigned",
-        "userAssignedIdentities": {
-          "[parameters('identity')]": {
-          }
-        }
-      },
       "properties": {
-        "forceUpdateTag": "[parameters('utcValue')]",
+        "forceUpdateTag": "[utcNow()]",
         "AzCliVersion": "2.0.80",
         "timeout": "PT30M",
-        "arguments": "[variables('cliArg')]",
-        "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/app-reg/scripts/create-app-registration.ps1",
+        "arguments": "[concat('-appName', ' ', parameters('appName'))]",
+        "scriptContent": "
+        param([string] $appName)
+        Connect-AzAccount
+        Connect-AzureAD
+        New-AzureADApplication -DisplayName $appName
+        ",
         "cleanupPreference": "Always",
         "retentionInterval": "P1D"
       }

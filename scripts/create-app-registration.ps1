@@ -1,1 +1,5 @@
-az ad app create --display-name app-reg-dg-test-1
+param(
+    [string]$appName,
+)
+Connect-AzureAD
+New-AzureADApplication -DisplayName $appName
