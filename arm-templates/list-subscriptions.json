@@ -2,7 +2,13 @@
     "type": "Microsoft.Resources/deploymentScripts",
     "apiVersion": "2020-10-01",
     "name": "runPowerShellInline",
-    "location": "[resourceGroup().location]",
+    "location": "eastus",
+    "identity": {
+      "type": "UserAssigned",
+      "userAssignedIdentities": {
+        "/subscriptions/b3f51724-9bff-43e5-9a6a-23f236ff683d/resourceGroups/DataGuard_Demo_3_Grp/providers/Microsoft.ManagedIdentity/userAssignedIdentities/DataGuard_MI":{}
+      }
+    },
     "kind": "AzurePowerShell",
     "properties": {
         "arguments": "-name \\\"DG\\\"",
@@ -11,13 +17,6 @@
         "containerSettings": {
             "containerGroupName": "customaci"
         },
-        // "environmentVariables": [
-        //     {
-        //         "name": "string",
-        //         "secureValue": "string",
-        //         "value": "string"
-        //     }
-        // ],
         "forceUpdateTag": "1",
         "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/app-reg/scripts/list-subscriptions.ps1",
         "retentionInterval": "P1D",
