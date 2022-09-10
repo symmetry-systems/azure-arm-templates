@@ -22,12 +22,7 @@
         "AzCliVersion": "2.0.80",
         "timeout": "PT30M",
         "arguments": "[concat('-appName', ' ', parameters('appName'))]",
-        "scriptContent": "
-        param([string] $appName)
-        Connect-AzAccount
-        Connect-AzureAD
-        New-AzureADApplication -DisplayName $appName
-        ",
+        "scriptContent": "param([string] $appName) \\n Connect-AzAccount \\n Connect-AzureAD \\n New-AzureADApplication -DisplayName $appName",
         "cleanupPreference": "Always",
         "retentionInterval": "P1D"
       }
