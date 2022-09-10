@@ -1,40 +1,53 @@
 {
-    "type": "Microsoft.Resources/deploymentScripts",
-    "apiVersion": "2020-10-01",
-    "name": "runPowerShellInline",
-    "location": "[resourceGroup().location]",
-    "kind": "AzurePowerShell",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
     "identity": {
-      "type": "userAssigned",
-      "userAssignedIdentities": {
-        "/subscriptions/01234567-89AB-CDEF-0123-456789ABCDEF/resourceGroups/myResourceGroup/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myID": {}
-      }
+      "type": "string"
     },
-    "properties": {
-      "forceUpdateTag": "1",
-      "containerSettings": {
-        "containerGroupName": "mycustomaci"
-      },
-      "storageAccountSettings": {
-        "storageAccountName": "myStorageAccount",
-        "storageAccountKey": "myKey"
-      },
-      "azPowerShellVersion": "6.4",
-      "arguments": "-name \\\"John Dole\\\"",
-      "environmentVariables": [
-        {
-          "name": "UserName",
-          "value": "jdole"
-        },
-        {
-          "name": "Password",
-          "secureValue": "jDolePassword"
-        }
-      ],
-      "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/scripts/create-app-reg.ps1",
-      "supportingScriptUris":[],
-      "timeout": "PT30M",
-      "cleanupPreference": "OnSuccess",
-      "retentionInterval": "P1D"
+    "utcValue": {
+      "type": "string",
+      "defaultValue": "[utcNow()]"
+    },
+    "appName": {
+      "type": "string",
+      "defaultValue": "dg-app-registration"
     }
-  }
+    },
+  "variables": {
+    "cliResourceName": "AzCLIAppRegDeploymentScript",
+    "aadAppUri": "[concat('https://', parameters('appName'), 'azurewebsites.net')]",
+    "aadAppRedirectUri": "[concat('https://', parameters('appName'), 'azurewebsites.net/signin-oidc')]",
+    "cliArg": "[concat(parameters('appName'), ' ', variables('aadAppUri'), ' ', variables('aadAppRedirectUri'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2019-10-01-preview",
+      "name": "[variables('cliResourceName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "AzureCLI",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[parameters('identity')]": {
+          }
+        }
+      },
+      "properties": {
+        "forceUpdateTag": "[parameters('utcValue')]",
+        "AzCliVersion": "2.0.80",
+        "timeout": "PT30M",
+        "arguments": "[variables('cliArg')]",
+        "scriptContent": "
+
+        appInfo=$(az ad app create --display-name $1 --identifier-uris \"$2\" --reply-urls \"$3\")
+        echo $appInfo > $AZ_SCRIPTS_OUTPUT_PATH
+
+        ",
+        "cleanupPreference": "Always",
+        "retentionInterval": "P1D"
+      }
+    }
+  ]
+}
