@@ -13,7 +13,7 @@
       "type": "string",
       "defaultValue": "dg-app-registration"
     }
-    },
+  },
   "variables": {
     "cliResourceName": "AzCLIAppRegDeploymentScript",
     "aadAppUri": "[concat('https://', parameters('appName'), 'azurewebsites.net')]",
@@ -39,12 +39,7 @@
         "AzCliVersion": "2.0.80",
         "timeout": "PT30M",
         "arguments": "[variables('cliArg')]",
-        "scriptContent": "
-
-        appInfo=$(az ad app create --display-name $1 --identifier-uris \"$2\" --reply-urls \"$3\")
-        echo $appInfo > $AZ_SCRIPTS_OUTPUT_PATH
-
-        ",
+        "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/app-reg/scripts/create-app-registration.ps1",
         "cleanupPreference": "Always",
         "retentionInterval": "P1D"
       }

@@ -1,23 +1,2 @@
-<#
-    .Synopsis
-        Create app registration on AD 
-    .Description
-        
-#>
-
-param(
-    [string]displayName,
-)
-
-
-$ValidData = $true
-if(-not $TenantID)
- {
-     Write-Host "displayName is null."
-     $ValidData = $false
- }
-
-Connect-AzAccount
-Connect-AzureAD -TenantId $TenantID -erroraction 'silentlycontinue'
-Write-Host "Connected to AD..."
-
+appInfo=$(az ad app create --display-name $1 --identifier-uris \"$2\" --reply-urls \"$3\")
+echo $appInfo > $AZ_SCRIPTS_OUTPUT_PATH
