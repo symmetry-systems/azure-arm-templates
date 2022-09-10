@@ -8,7 +8,7 @@
     }
   },
   "variables": {
-    "cliResourceName": "AzCLIAppRegDeploymentScript"
+    "cliResourceName": "AzAppRegDeploymentScript"
   },
   "resources": [
     {
@@ -16,10 +16,10 @@
       "apiVersion": "2019-10-01-preview",
       "name": "[variables('cliResourceName')]",
       "location": "[resourceGroup().location]",
-      "kind": "AzureCLI",
+      "kind": "AzurePowerShell",
       "properties": {
         "forceUpdateTag": "[utcNow()]",
-        "AzCliVersion": "2.0.80",
+        "azPowerShellVersion": "6.4",
         "timeout": "PT30M",
         "arguments": "[concat('-appName', ' ', parameters('appName'))]",
         "scriptContent": "param([string] $appName) \\n Connect-AzAccount \\n Connect-AzureAD \\n New-AzureADApplication -DisplayName $appName",
