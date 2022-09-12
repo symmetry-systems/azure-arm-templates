@@ -14,7 +14,8 @@
     }
   },
   "variables": {
-    "cliResourceName": "AzAppRegDeploymentScript"
+    "cliResourceName": "AzAppRegDeploymentScript",
+    "forceUpdateTag": "[utcNow()]"
   },
   "resources": [
     {
@@ -31,7 +32,7 @@
         }
       },
       "properties": {
-        "forceUpdateTag": "[utcNow()]",
+        "forceUpdateTag": "[variables('forceUpdateTag')]",
         "azPowerShellVersion": "6.4",
         "timeout": "PT30M",
         "arguments": "[concat('-appName', ' ', parameters('appName'))]",
