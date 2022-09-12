@@ -31,7 +31,6 @@
         }
       },
       "properties": {
-        "forceUpdateTag": "[newGuid()]",
         "azPowerShellVersion": "6.4",
         "timeout": "PT30M",
         "arguments": "[concat('-appName', ' ', parameters('appName'))]",
