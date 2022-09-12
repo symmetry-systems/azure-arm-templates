@@ -1,5 +1,3 @@
-param(
-    [string]$appName,
-)
-Connect-AzureAD
+param([string] $appName)
+Connect-AzureAD 
 New-AzureADApplication -DisplayName $appName
