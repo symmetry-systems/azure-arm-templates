@@ -1,7 +1,7 @@
 
 param(
   [string]$TenantId, # The Tenant ID where DataGuard is deployed.
-  [string]$ManagedDataGuardIdentity # The name of the managed DataGuard identity.
+  [string]$AppRegId # The name of the DataGuard App registration.
 )
   
 # Microsoft Graph App ID. This is constant.
@@ -14,10 +14,9 @@ $PermissionNames = "Directory.Read.All", "UserAuthenticationMethod.Read.All"
 Install-Module AzureAD 
 
 Connect-AzureAD -TenantId $TenantId 
-$MSI = (Get-AzureADServicePrincipal -Filter "DisplayName eq '$ManagedDataGuardIdentity'")
 Start-Sleep -Seconds 10
 $GraphServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$GraphAppId'"
 foreach($PermissionName in $PermissionNames){
   $AppRole = $GraphServicePrincipal.AppRoles | Where-Object {$_.Value -eq $PermissionName -and $_.AllowedMemberTypes -contains "Application"}
-  New-AzureAdServiceAppRoleAssignment -ObjectId $MSI.ObjectId -PrincipalId $MSI.ObjectId -ResourceId $GraphServicePrincipal.ObjectId -Id $AppRole.Id
+  Add-AzADAppPermission -ObjectId $AppRegId -ApiId $GraphAppId -PermissionId $AppRole.Id -Type 'Role'
 }
