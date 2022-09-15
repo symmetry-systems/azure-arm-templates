@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "identity": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the resource ID of the user-assigned managed identity."
+      }
+    },
+    "appName": {
+      "type": "string",
+      "defaultValue": "dg-app-registration"
+    }
+  },
+  "variables": {
+    "cliResourceName": "AzAppRegDeploymentScript"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2019-10-01-preview",
+      "name": "[variables('cliResourceName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[parameters('identity')]": {
+          }
+        }
+      },
+      "properties": {
+        "azPowerShellVersion": "6.4",
+        "timeout": "PT30M",
+        "arguments": "[concat('-appName', ' ', parameters('appName'))]",
+        "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/scripts/create-app-registration.ps1",
+        "cleanupPreference": "Always",
+        "retentionInterval": "P1D"
+      }
+    }
+  ]
+}
