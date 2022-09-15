@@ -34,7 +34,7 @@
         "azPowerShellVersion": "6.4",
         "timeout": "PT30M",
         "arguments": "[concat('-appName', ' ', parameters('appName'))]",
-        "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/app-reg/scripts/create-app-registration.ps1",
+        "primaryScriptUri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/scripts/create-app-registration.ps1",
         "cleanupPreference": "Always",
         "retentionInterval": "P1D"
       }
