@@ -37,6 +37,8 @@ Start-Sleep -Seconds 15
 
 $appReg = New-AzureADApplication -DisplayName $appName -AvailableToOtherTenants $multiTenant
 
+New-AzureADApplicationPasswordCredential -ObjectId $appReg.ObjectId
+
 $GraphServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$GraphAppId'"
 
 Start-Sleep -Seconds 5
