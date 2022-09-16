@@ -1,0 +1,117 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+        "billingAccountId": {
+			"type": "string",
+			"metadata": {
+				"description": "Billing account name under which subscription is to be created."
+			}
+		},
+		"billingProfileId": {
+			"type": "string",
+			"metadata": {
+				"description": "Billing profile name under which subscription is to be created."
+			}
+		},
+		"invoiceSectionId": {
+			"type": "string",
+			"metadata": {
+				"description": "Invoice section name under which subscription is to be created."
+			}
+		},
+        "resourceTag": {
+			"type": "string",
+			"metadata": {
+				"description": "Tag for resources"
+			}            
+        },
+		"location": {
+			"type": "string",
+			"defaultValue": "EastUs",
+			"metadata": {
+				"description": "The Azure location where the managed identity should be created."
+			}
+		}
+    },
+    "variables": {
+		"setupSubscriptionDeployment": "[format('setup-{0}', parameters('resourceTag'), '-subscription')]"        
+    },
+    "resources": [
+		{
+			"apiVersion": "2020-06-01",
+			"name": "pid-187b466a-e448-46dc-840b-e663ce1a9bf3",
+			"location": "[deployment().location]",
+			"type": "Microsoft.Resources/deployments",
+			"properties": {
+				"mode": "Incremental",
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"resources": []
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('setupSubscriptionDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"billingAccountId": {
+						"value": "[parameters('billingAccountId')]"
+					},
+					"billingProfileId": {
+						"value": "[parameters('billingProfileId')]"
+					},
+					"invoiceSectionId": {
+						"value": "[parameters('invoiceSectionId')]"
+					},
+					"subscriptionAlias": {
+						"value": "[concat(parameters('resourceTag'), '-subscription')]"
+					},
+					"subscriptionDisplayName": {
+						"value": "[concat(parameters('resourceTag'), '-subscription')]"
+					}
+				},
+				"templateLink": {
+					"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/one-click-arm-deploy/arm-templates/create-dataguard-subscription.json",
+					"contentVersion": "1.0.0.0"
+				}
+			}
+		},
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[format('create-{0}', parameters('resourceTag'))]",
+            "subscriptionId": "[reference(tenantResourceId('Microsoft.Subscription/aliases', concat(parameters('resourceTag'), '-subscription'))).subscriptionId]",
+            "location": "[deployment().location]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "resourceGroupName": {
+                        "value": "[concat(parameters('resourceTag'), '-resource-group')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/one-click-arm-deploy/arm-templates/create-dataguard-resource-group.json",
+                    "contentVersion": "1.0.0.0"
+                }
+            },
+			"dependsOn": [
+				"[format('Microsoft.Resources/deployments/{0}', variables('setupSubscriptionDeployment'))]"
+			]
+        }
+    ]
+}

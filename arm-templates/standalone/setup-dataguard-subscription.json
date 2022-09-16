@@ -2,39 +2,30 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"subscriptionId": {
+		"billingAccountId": {
 			"type": "string",
 			"metadata": {
-				"description": "Subscription Id for DataGuard."
+				"description": "Billing account name under which subscription is to be created."
 			}
 		},
-		"subscriptionsToMonitor": {
-			"type": "array", 
-			"defaultValue": ["replace sub id 1 here", "replace sub id 2 here etc."]
-		},
-		"identityName": {
+		"billingProfileId": {
 			"type": "string",
-			"defaultValue": "template-created-dg-id",
-			"allowedValues": [
-				"template-created-dg-id"
-			],
 			"metadata": {
-				"description": "Specifies the name of the user-assigned managed identity used for dataguard."
+				"description": "Billing profile name under which subscription is to be created."
 			}
 		},
-		"resourceGroupName": {
+		"invoiceSectionId": {
 			"type": "string",
-			"defaultValue": "dataguard-resource-grp",
-			"allowedValues": [
-				"dataguard-resource-grp"
-			],
 			"metadata": {
-				"description": "Resource group name for dataguard."
+				"description": "Invoice section name under which subscription is to be created."
 			}
 		},
-		"createBastion":{
-			"defaultValue": true,
-			"type": "bool"
+		"resourceTag": {
+			"type": "string",
+			"defaultValue": "DG",
+			"metadata": {
+				"description": "Resource tag for DataGuard deployment."
+			}
 		},
 		"location": {
 			"type": "string",
@@ -45,10 +36,8 @@
 		}
 	},
 	"variables": {
-		"nestedCreateResourceGroupDeployment": "[format('create-resource-group-{0}', parameters('resourceGroupName'))]",
-		"nestedCreateIdentityDeployment": "[format('setup-id-{0}', parameters('identityName'))]",
-		"nestedIdentityOwnSubContributorRoleAssignmentDeployment": "[format('assign-own-sub-contrib-role-{0}', parameters('identityName'))]",
-		"nestedIdentityRootReaderRoleAssignmentDeployment": "[format('assign-root-reader-role-{0}', parameters('identityName'))]",
+		"setupSubscriptionDeployment": "[format('create-subscription-{0}', parameters('resourceTag'))]",
+		"nestedCreateResourceGroupDeployment": "[format('create-resource-group-{0}', parameters('resourceTag'))]",
 		"nestedCreateVirtualNetwork": "virtual-network-deployment",
 		"vnetName": "dataguard-vnet",
 		"nestedCreateStorageAccountDeployment": "create-storage-account",
@@ -74,6 +63,39 @@
 		{
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2019-10-01",
+			"name": "[variables('setupSubscriptionDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"billingAccountId": {
+						"value": "[parameters('billingAccountId')]"
+					},
+					"billingProfileId": {
+						"value": "[parameters('billingProfileId')]"
+					},
+					"invoiceSectionId": {
+						"value": "[parameters('invoiceSectionId')]"
+					},
+					"subscriptionAlias": {
+						"value": "[concat(parameters('resourceTag'), '-sub')]"
+					},
+					"subscriptionDisplayName": {
+						"value": "[concat(parameters('resourceTag'), '-sub')]"
+					}
+				},
+				"templateLink": {
+					"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-dataguard-subscription.json",
+					"contentVersion": "1.0.0.0"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
 			"name": "[variables('nestedCreateResourceGroupDeployment')]",
 			"location": "[deployment().location]",
 			"properties": {
@@ -83,7 +105,7 @@
 				"mode": "Incremental",
 				"parameters": {
 					"resourceGroupName": {
-						"value": "[parameters('resourceGroupName')]"
+						"value": "[concat(parameters('resourceTag'), '-grp')]"
 					},
 					"location": {
 						"value": "[parameters('location')]"

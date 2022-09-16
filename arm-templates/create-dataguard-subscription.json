@@ -38,12 +38,6 @@
             "metadata": {
                 "description": "Display name for the subscription"
             }
-        },
-        "subscriptionWorkload": {
-            "type": "string",
-            "metadata": {
-                "description": "Workload type for the subscription"
-            }
         }
     },
     "functions": [],
@@ -54,7 +48,6 @@
             "scope": "/",
             "name": "[parameters('subscriptionAlias')]",
             "properties": {
-                "workload": "[parameters('subscriptionWorkload')]",
                 "displayName": "[parameters('subscriptionDisplayName')]",
                 "billingScope": "[tenantResourceId('Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections', parameters('billingAccountId'), parameters('billingProfileId'), parameters('invoiceSectionId'))]"
             }
