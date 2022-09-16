@@ -3,13 +3,19 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "enrollmentAccount": {
+    "billingAccountId": {
       "type": "string",
       "metadata": {
         "description": "EnrollmentAccount used for subscription billing"
       }
     },
-    "billingAccount": {
+    "billingProfileId": {
+      "type": "string",
+      "metadata": {
+        "description": "BillingAccount used for subscription billing"
+      }
+    },
+    "invoiceSectionId": {
       "type": "string",
       "metadata": {
         "description": "BillingAccount used for subscription billing"
@@ -65,11 +71,14 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "billingAccount": {
-            "value": "[parameters('billingAccount')]"
+          "billingAccountId": {
+            "value": "[parameters('billingAccountId')]"
           },
-          "enrollmentAccount": {
-            "value": "[parameters('enrollmentAccount')]"
+          "billingProfileId": {
+            "value": "[parameters('billingProfileId')]"
+          },
+          "invoiceSectionId": {
+            "value": "[parameters('invoiceSectionId')]"
           },
           "subscriptionAlias": {
             "value": "[parameters('subscriptionAlias')]"
@@ -92,13 +101,19 @@
             }
           },
           "parameters": {
-            "enrollmentAccount": {
+            "billingAccountId": {
               "type": "string",
               "metadata": {
                 "description": "EnrollmentAccount used for subscription billing"
               }
             },
-            "billingAccount": {
+            "billingProfileId": {
+              "type": "string",
+              "metadata": {
+                "description": "BillingAccount used for subscription billing"
+              }
+            },
+            "invoiceSectionId": {
               "type": "string",
               "metadata": {
                 "description": "BillingAccount used for subscription billing"
@@ -133,7 +148,7 @@
               "properties": {
                 "workload": "[parameters('subscriptionWorkload')]",
                 "displayName": "[parameters('subscriptionDisplayName')]",
-                "billingScope": "[tenantResourceId('Microsoft.Billing/billingAccounts/enrollmentAccounts', parameters('billingAccount'), parameters('enrollmentAccount'))]"
+                "billingScope": "[tenantResourceId('Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections', parameters('billingAccountId'), parameters('billingProfileId'), parameters('invoiceSectionId'))]"
               }
             }
           ],
@@ -421,7 +436,7 @@
                     },
                     "vnetId": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), format('create-{0}', parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', format('nested-vnet-{0}', format('create-{0}', parameters('vnetName')))), '2019-10-01').outputs.vnetId.value]"
+                      "value": "[resourceId('Microsoft.Network/VirtualNetworks', parameters('vnetName'))]"
                     }
                   }
                 }
