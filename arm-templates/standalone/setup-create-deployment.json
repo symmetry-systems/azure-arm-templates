@@ -35,7 +35,9 @@
 		}
     },
     "variables": {
-		"setupSubscriptionDeployment": "[format('setup-{0}', parameters('resourceTag'), '-subscription')]"        
+        "subscriptionName": "[concat(parameters('resourceTag'), '-subscription')]",
+		"setupSubscriptionDeployment": "[format('setup-{0}', variables('subscriptionName'))]",
+		"nestedCreateResourceGroupDeployment": "[format('create-resource-group-{0}', parameters('resourceTag'))]"
     },
     "resources": [
 		{
@@ -73,10 +75,10 @@
 						"value": "[parameters('invoiceSectionId')]"
 					},
 					"subscriptionAlias": {
-						"value": "[concat(parameters('resourceTag'), '-subscription')]"
+						"value": "[variables('subscriptionName')]"
 					},
 					"subscriptionDisplayName": {
-						"value": "[concat(parameters('resourceTag'), '-subscription')]"
+						"value": "[variables('subscriptionName')]"
 					}
 				},
 				"templateLink": {
@@ -85,33 +87,82 @@
 				}
 			}
 		},
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[format('create-{0}', parameters('resourceTag'))]",
-            "subscriptionId": "[reference(tenantResourceId('Microsoft.Subscription/aliases', concat(parameters('resourceTag'), '-subscription'))).subscriptionId]",
-            "location": "[deployment().location]",
-            "properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                    "resourceGroupName": {
-                        "value": "[concat(parameters('resourceTag'), '-resource-group')]"
-                    },
-                    "location": {
-                        "value": "[parameters('location')]"
-                    }
-                },
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/one-click-arm-deploy/arm-templates/create-dataguard-resource-group.json",
-                    "contentVersion": "1.0.0.0"
-                }
-            },
-			"dependsOn": [
-				"[format('Microsoft.Resources/deployments/{0}', variables('setupSubscriptionDeployment'))]"
-			]
-        }
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('nestedCreateResourceGroupDeployment')]",
+			"location": "[deployment().location]",
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"resourceGroupName": {
+						"value": "[parameters('resourceGroupName')]"
+					},
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"subscriptionId": {
+						"value": "[parameters('subscriptionId')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"subscriptionId": {
+							"type": "string",
+							"metadata": {
+								"description": "Subscription ID for the deployment"
+							}
+						},
+						"resourceGroupName": {
+							"type": "string",
+							"defaultValue": "dataguard-resource-grp",
+							"metadata": {
+								"description": "Name of the resourceGroup, will be created in the same location as the deployment."
+							}
+						},
+						"location": {
+							"type": "string",
+							"defaultValue": "[deployment().location]",
+							"metadata": {
+								"description": "Location for the deployments and the resources. List of available regions for the resource type are: 'westus,eastus,northeurope,westeurope,eastasia,southeastasia,northcentralus,southcentralus,centralus,eastus2,japaneast,japanwest,brazilsouth,australiaeast,australiasoutheast,centralindia,southindia,westindia,canadacentral,canadaeast,westcentralus,westus2,ukwest,uksouth,koreacentral,koreasouth,francecentral,australiacentral,southafricanorth,uaenorth,switzerlandnorth,germanywestcentral,norwayeast,westus3,jioindiawest,swedencentral,qatarcentral."
+							}
+						}
+					},
+					"resources": [{
+						"type": "Microsoft.Resources/deployments",
+						"apiVersion": "2019-10-01",
+						"name": "[format('create-{0}', parameters('resourceGroupName'))]",
+						"subscriptionId": "[parameters('subscriptionId')]",
+						"location": "[deployment().location]",
+						"properties": {
+							"expressionEvaluationOptions": {
+								"scope": "inner"
+							},
+							"mode": "Incremental",
+							"parameters": {
+								"resourceGroupName": {
+									"value": "[parameters('resourceGroupName')]"
+								},
+								"location": {
+									"value": "[parameters('location')]"
+								}
+							},
+							"templateLink": {
+								"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-dataguard-resource-group.json",
+								"contentVersion": "1.0.0.0"
+							}
+						}
+					}]
+				}
+			},
+            "dependsOn": [
+                 "[concat('Microsoft.Resources/deployments/', variables('setupSubscriptionDeployment'))]"
+                 ]
+		}
     ]
 }

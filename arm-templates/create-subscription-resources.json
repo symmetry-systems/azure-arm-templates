@@ -191,6 +191,13 @@
                 "description": "Name of the resourceGroup, will be created in the same location as the deployment."
               }
             },
+            "vnetName": {
+              "type": "string",
+              "defaultValue": "demo",
+              "metadata": {
+                "description": "Name of the vnet, will be created in the same location as the deployment."
+              }
+            },
             "location": {
               "type": "string",
               "defaultValue": "[deployment().location]",
@@ -279,11 +286,25 @@
                     "location": {
                       "type": "string",
                       "defaultValue": "[resourceGroup().location]"
+                    },
+                    "vnetName": {
+                      "type": "string",
+                      "defaultValue": "[parameters('vnetName')]"
+                    },
+                    "publicipname": {
+                      "type": "string",
+                      "defaultValue": "[variables('publicIpName')]"
+                    },
+                    "natgatewayname": {
+                      "type": "string",
+                      "defaultValue": "[variables('natgwName')]"
                     }
                   },
                   "functions": [],
                   "variables": {
-                    "storageAccountName": "[format('stor{0}', uniqueString(resourceGroup().id))]"
+                    "storageAccountName": "[format('stor{0}', uniqueString(resourceGroup().id))]",
+                    "publicIpName": "[concat(parameters('vnetName'),'-ip')]",
+                    "natgwName": "[concat(parameters('vnetName'),'-nat')]"
                   },
                   "resources": [
                     {
@@ -295,12 +316,112 @@
                       "sku": {
                         "name": "Standard_LRS"
                       }
+                    },
+                    {
+                      "name": "[parameters('vnetName')]",
+                      "type": "Microsoft.Network/VirtualNetworks",
+                      "apiVersion": "2021-01-01",
+                      "location": "[parameters('location')]",
+                      "tags": {},
+                      "properties": {
+                        "addressSpace": {
+                          "addressPrefixes": [
+                            "10.10.0.0/16"
+                          ]
+                        },
+                        "subnets": [
+                          {
+                            "name": "default",
+                            "properties": {
+                              "addressPrefix": "10.10.0.0/24",
+                              "privateEndpointNetworkPolicies": "Disabled"
+                            }
+                          },
+                          {
+                            "name": "public-subnet",
+                            "properties": {
+                              "addressPrefix": "10.10.1.0/24",
+                              "privateEndpointNetworkPolicies": "Disabled"
+                            }
+                          },
+                          {
+                            "name": "private-subnet",
+                            "properties": {
+                              "addressPrefix": "10.10.2.0/24",
+                              "serviceEndpoints": [
+                                {
+                                  "service": "Microsoft.Storage"
+                                },
+                                {
+                                  "service": "Microsoft.AzureCosmosDB"
+                                },
+                                {
+                                  "service": "Microsoft.Sql"
+                                }
+                              ],
+                              "privateEndpointNetworkPolicies": "Disabled",
+                              "natGateway": {
+                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
+                              }
+                            }
+                          },
+                          {
+                            "name": "app-gw-subnet",
+                            "properties": {
+                              "addressPrefix": "10.10.3.0/24",
+                              "privateEndpointNetworkPolicies": "Disabled"
+                            }
+                          }
+
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/natGateways",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('natgatewayname')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      },
+                      "properties": {
+                        "idleTimeoutInMinutes": 4,
+                        "publicIpAddresses": [
+                          {
+                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipname'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/publicIPAddresses",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('publicipname')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      },
+                      "properties": {
+                        "publicIPAddressVersion": "IPv4",
+                        "publicIPAllocationMethod": "Static",
+                        "idleTimeoutInMinutes": 4
+                      }
                     }
                   ],
                   "outputs": {
                     "storageAccountId": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                    },
+                    "vnetId": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), format('create-{0}', parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', format('nested-vnet-{0}', format('create-{0}', parameters('vnetName')))), '2019-10-01').outputs.vnetId.value]"
                     }
                   }
                 }
@@ -314,6 +435,10 @@
             "storageAccountId": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), format('create-{0}', parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', format('nested-createResourceGroup-{0}', format('create-{0}', parameters('resourceGroupName')))), '2019-10-01').outputs.storageAccountId.value]"
+            },
+            "vnetId": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), format('create-{0}', parameters('resourceGroupName'))), 'Microsoft.Resources/deployments', format('nested-vnet-{0}', format('create-{0}', parameters('vnetName')))), '2019-10-01').outputs.vnetId.value]"
             }
           }
         }
@@ -331,6 +456,10 @@
     "storageAccountId": {
       "type": "string",
       "value": "[reference(format('Microsoft.Resources/deployments/{0}', format('nested-createResourceGroup-{0}', parameters('resourceGroupName'))), '2019-10-01').outputs.storageAccountId.value]"
+    },
+    "vnetId": {
+      "type": "string",
+      "value": "[reference(format('Microsoft.Resources/deployments/{0}', format('nested-createResourceGroup-{0}', parameters('resourceGroupName'))), '2019-10-01').outputs.vnetId.value]"
     }
   }
 }
