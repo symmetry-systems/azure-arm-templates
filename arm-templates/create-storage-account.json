@@ -8,17 +8,19 @@
 				"description": "Subnet ID where DataGuard is hosted."
 			}
         },
-		"storageAccountName": {
-			"defaultValue": "[format('store{0}', uniqueString(resourceGroup().id))]",
-			"type": "string"
-		},
 		"location": {
-			"type": "string"
+			"type": "string",
+			"defaultValue": "EastUs",
+			"metadata": {
+				"description": "The Azure location where the managed identity should be created."
+			}
 		}
     },
-    "variables": {},
+    "variables": {
+        "storageAccountName": "[format('store{0}', uniqueString(resourceGroup().id))]"
+    },
     "resources": [{
-			"name": "[parameters('storageAccountName')]",
+			"name": "[variables('storageAccountName')]",
 			"type": "Microsoft.Storage/storageAccounts",
 			"apiVersion": "2021-08-01",
 			"location": "[parameters('location')]",
@@ -71,7 +73,7 @@
 			"tags": {}
 		},
 		{
-			"name": "[concat(parameters('storageAccountName'), '/default')]",
+			"name": "[concat(variables('storageAccountName'), '/default')]",
 			"type": "Microsoft.Storage/storageAccounts/blobServices",
 			"apiVersion": "2021-08-01",
 			"properties": {
@@ -85,11 +87,11 @@
 				}
 			},
 			"dependsOn": [
-				"[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+				"[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
 			]
 		},
 		{
-			"name": "[concat(parameters('storageAccountName'), '/default')]",
+			"name": "[concat(variables('storageAccountName'), '/default')]",
 			"type": "Microsoft.Storage/storageAccounts/fileservices",
 			"apiVersion": "2021-08-01",
 			"properties": {
@@ -99,19 +101,19 @@
 				}
 			},
 			"dependsOn": [
-				"[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-				"[concat(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '/blobServices/default')]"
+				"[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+				"[concat(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '/blobServices/default')]"
 			]
 		}
 	],
     "outputs": {
 		"storageAccountName": {
 			"type": "string",
-			"value": "[parameters('storageAccountName')]"
+			"value": "[variables('storageAccountName')]"
 		},
 		"storageAccountId": {
 			"type": "string",
-			"value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+			"value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
 		}
     }
 }
