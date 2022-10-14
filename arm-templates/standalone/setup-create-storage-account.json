@@ -1,20 +1,8 @@
 {
-	"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"subscriptionId": {
-			"type": "string",
-			"metadata": {
-				"description": "Subscription Id for DataGuard."
-			}
-		},
-		"resourceGroupName": {
-			"type": "string",
-			"metadata": {
-				"description": "Resource group name for DataGuard."
-			}
-		},
-        "dataguardSubnet": {
+        "dataGuardSubnet": {
             "type": "String",
 			"metadata": {
 				"description": "Subnet ID where DataGuard is hosted."
@@ -43,12 +31,6 @@
 				},
 				"mode": "Incremental",
 				"parameters": {
-					"subscriptionId": {
-						"value": "[parameters('subscriptionId')]"
-					},
-					"resourceGroupName": {
-						"value": "[parameters('resourceGroupName')]"
-					},
 					"dataguardSubnet": {
 						"value": "[parameters('dataguardSubnet')]"
 					},
@@ -60,18 +42,6 @@
 					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
 					"contentVersion": "1.0.0.0",
 					"parameters": {
-						"subscriptionId": {
-							"type": "string",
-							"metadata": {
-								"description": "subscriptionId for the deployment"
-							}
-						},
-						"resourceGroupName": {
-							"type": "string",
-							"metadata": {
-								"description": "resource group name"
-							}
-						},
 						"dataguardSubnet": {
 							"type": "string",
 							"metadata": {
@@ -86,8 +56,6 @@
 							"type": "Microsoft.Resources/deployments",
 							"apiVersion": "2019-10-01",
 							"name": "create-dg-storage-account",
-							"resourceGroup": "[parameters('resourceGroupName')]",
-							"subscriptionId": "[parameters('subscriptionId')]",
 							"properties": {
 								"expressionEvaluationOptions": {
 									"scope": "inner"
@@ -111,8 +79,6 @@
 							"type": "Microsoft.Resources/deployments",
 							"apiVersion": "2019-10-01",
 							"name": "create-private-blob-dns-zone",
-							"resourceGroup": "[parameters('resourceGroupName')]",
-							"subscriptionId": "[parameters('subscriptionId')]",
 							"properties": {
 								"expressionEvaluationOptions": {
 									"scope": "inner"
