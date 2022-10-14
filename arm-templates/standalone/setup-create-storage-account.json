@@ -106,28 +106,6 @@
 									"contentVersion": "1.0.0.0"
 								}
 							}
-						},
-						{
-							"type": "Microsoft.Resources/deployments",
-							"apiVersion": "2019-10-01",
-							"name": "create-private-blob-dns-zone",
-							"resourceGroup": "[parameters('resourceGroupName')]",
-							"subscriptionId": "[parameters('subscriptionId')]",
-							"properties": {
-								"expressionEvaluationOptions": {
-									"scope": "inner"
-								},
-								"mode": "Incremental",
-								"parameters": {
-									"name": {
-										"value": "privatelink.blob.core.windows.net"
-									}
-								},
-								"templateLink": {
-									"uri": "https://raw.githubusercontent.com/symmetry-systems/azure-arm-templates/main/arm-templates/create-private-dns-zone.json",
-									"contentVersion": "1.0.0.0"
-								}
-							}
 						}
 					],
 					"outputs": {
