@@ -14,10 +14,10 @@
 				"description": "Resource group name for DataGuard."
 			}
 		},
-        "defaultSubnetId": {
-            "type": "string",
+        "dataguardSubnet": {
+            "type": "String",
 			"metadata": {
-				"description": "The subnet id from which to create a private endpoint."
+				"description": "Subnet ID where DataGuard is hosted."
 			}
         },
 		"location": {
@@ -29,9 +29,8 @@
 		}
 	},
 	"variables": {
-		"nestedCreateStorageAccountDeployment": "create-storage-account",
-		"nestedCreateStorageAccountPvtEpDeployment": "create-storage-account-pvt-ep"
-	},
+		"nestedCreateStorageAccountDeployment": "create-storage-account"	
+		},
 	"resources": [
 		{
 			"type": "Microsoft.Resources/deployments",
@@ -49,6 +48,9 @@
 					},
 					"resourceGroupName": {
 						"value": "[parameters('resourceGroupName')]"
+					},
+					"dataguardSubnet": {
+						"value": "[parameters('dataguardSubnet')]"
 					},
 					"location": {
 						"value": "[parameters('location')]"
@@ -70,6 +72,12 @@
 								"description": "resource group name"
 							}
 						},
+						"dataguardSubnet": {
+							"type": "string",
+							"metadata": {
+								"description": "dataguard subnet id"
+							}
+						},
 						"location": {
 							"type": "string"
 						}
@@ -88,6 +96,9 @@
 								"parameters": {
 									"location": {
 										"value": "[parameters('location')]"
+									},
+									"dataguardSubnet": {
+										"value": "[parameters('dataguardSubnet')]"
 									}
 								},
 								"templateLink": {
@@ -136,117 +147,6 @@
 
 				}
 			}
-		},
-		{
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-10-01",
-			"name": "[variables('nestedCreateStorageAccountPvtEpDeployment')]",
-			"location": "[deployment().location]",
-			"properties": {
-				"expressionEvaluationOptions": {
-					"scope": "inner"
-				},
-				"mode": "Incremental",
-				"parameters": {
-					"subscriptionId": {
-						"value": "[parameters('subscriptionId')]"
-					},
-					"resourceGroupName": {
-						"value": "[parameters('resourceGroupName')]"
-					},
-					"location": {
-						"value": "[parameters('location')]"
-					},
-					"storageAccountName": {
-						"value": "[reference(format('Microsoft.Resources/deployments/{0}', variables('nestedCreateStorageAccountDeployment'))).outputs.storageAccountName.value]"
-					},
-					"storageAccountId": {
-						"value": "[reference(format('Microsoft.Resources/deployments/{0}', variables('nestedCreateStorageAccountDeployment'))).outputs.storageAccountId.value]"
-					},
-					"defaultSubnetId": {
-						"value": "[parameters('defaultSubnetId')]"
-					},
-					"privateDnsZoneId": {
-						"value": "[reference(format('Microsoft.Resources/deployments/{0}', variables('nestedCreateStorageAccountDeployment'))).outputs.privateDnsZoneId.value]"
-					}
-				},
-				"template": {
-					"$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
-					"contentVersion": "1.0.0.0",
-					"parameters": {
-						"subscriptionId": {
-							"type": "string",
-							"metadata": {
-								"description": "subscriptionId for the deployment"
-							}
-						},
-						"resourceGroupName": {
-							"type": "string",
-							"metadata": {
-								"description": "resource group name"
-							}
-						},
-						"location": {
-							"type": "string"
-						},
-						"storageAccountName": { 
-							"type": "string"
-						},
-						"storageAccountId": {
-							"type": "string"
-						},
-						"defaultSubnetId": {
-							"type": "string"
-						},
-						"privateDnsZoneId": {
-							"type": "string"
-						}
-					},
-					"resources": [{
-						"type": "Microsoft.Resources/deployments",
-						"apiVersion": "2019-10-01",
-						"name": "create-storage-account-blob-pvt-ep",
-						"resourceGroup": "[parameters('resourceGroupName')]",
-						"subscriptionId": "[parameters('subscriptionId')]",
-						"properties": {
-							"expressionEvaluationOptions": {
-								"scope": "inner"
-							},
-							"mode": "Incremental",
-							"parameters": {
-								"location": {
-									"value": "[parameters('location')]"
-								},
-								"resourceGroupName": {
-									"value": "[parameters('resourceGroupName')]"
-								},
-								"privateEndpointName": {
-									"value": "[concat(parameters('storageAccountName'), '-blob-pvt-ep')]"
-								},
-								"privateLinkResource": {
-									"value": "[parameters('storageAccountId')]"
-								},
-								"targetSubResource": {
-									"value": ["blob"]
-								},
-								"subnetId": {
-									"value": "[parameters('defaultSubnetId')]"
-								},
-								"privateDnsZoneId": {
-									"value": "[parameters('privateDnsZoneId')]"
-								}
-							},
-							"templateLink": {
-								"uri": "https://raw.githubusercontent.com/sachintyagi22/azure-templates/create-resource-group-parameter-update/templates/create-pvt-ep-blob.json",
-								"contentVersion": "1.0.0.0"
-							}
-						}
-					}]
-				}
-			},
-			"dependsOn": [
-				"[format('Microsoft.Resources/deployments/{0}', variables('nestedCreateStorageAccountDeployment'))]"
-			]
 		}
 	]
 }

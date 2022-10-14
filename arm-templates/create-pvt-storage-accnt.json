@@ -9,6 +9,9 @@
 			"defaultValue": "[format('store{0}', uniqueString(resourceGroup().id))]",
 			"type": "string"
 		},
+        "dataguardSubnet": {
+            "type": "String"
+        },
 		"accountType": {
 			"type": "string",
 			"defaultValue": "Standard_RAGRS",
@@ -127,6 +130,13 @@
 				"defaultToOAuthAuthentication": "[parameters('defaultOAuth')]",
 				"networkAcls": {
 					"bypass": "[parameters('networkAclsBypass')]",
+					"virtualNetworkRules": [
+                        {
+                            "id": "[parameters('dataguardSubnet')]",
+                            "action": "Allow",
+                            "state": "Succeeded"
+                        }
+                    ],
 					"defaultAction": "[parameters('networkAclsDefaultAction')]",
 					"ipRules": []
 				},
