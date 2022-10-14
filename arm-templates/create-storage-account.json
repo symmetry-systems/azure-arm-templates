@@ -1,0 +1,117 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataguardSubnet": {
+            "type": "String",
+			"metadata": {
+				"description": "Subnet ID where DataGuard is hosted."
+			}
+        },
+		"storageAccountName": {
+			"defaultValue": "[format('store{0}', uniqueString(resourceGroup().id))]",
+			"type": "string"
+		},
+		"location": {
+			"type": "string"
+		}
+    },
+    "variables": {},
+    "resources": [{
+			"name": "[parameters('storageAccountName')]",
+			"type": "Microsoft.Storage/storageAccounts",
+			"apiVersion": "2021-08-01",
+			"location": "[parameters('location')]",
+			"properties": {
+				"accessTier": "Hot",
+				"minimumTlsVersion": "TLS1_2",
+				"supportsHttpsTrafficOnly": true,
+				"allowBlobPublicAccess": false,
+				"allowSharedKeyAccess": false,
+				"allowCrossTenantReplication": false,
+				"defaultToOAuthAuthentication": true,
+				"networkAcls": {
+					"bypass": "AzureServices",
+					"virtualNetworkRules": [
+                        {
+                            "id": "[parameters('dataguardSubnet')]",
+                            "action": "Allow",
+                            "state": "Succeeded"
+                        }
+                    ],
+					"defaultAction": "Deny",
+					"ipRules": []
+				},
+				"isHnsEnabled": true,
+				"isSftpEnabled": false,
+				"encryption": {
+					"keySource": "Microsoft.Storage",
+					"services": {
+						"blob": {
+							"enabled": true
+						},
+						"file": {
+							"enabled": true
+						},
+						"table": {
+							"enabled": true
+						},
+						"queue": {
+							"enabled": true
+						}
+					},
+					"requireInfrastructureEncryption": false
+				}
+			},
+			"dependsOn": [],
+			"sku": {
+				"name": "Standard_RAGRS"
+			},
+			"kind": "StorageV2",
+			"tags": {}
+		},
+		{
+			"name": "[concat(parameters('storageAccountName'), '/default')]",
+			"type": "Microsoft.Storage/storageAccounts/blobServices",
+			"apiVersion": "2021-08-01",
+			"properties": {
+				"deleteRetentionPolicy": {
+					"enabled": true,
+					"days": 7
+				},
+				"containerDeleteRetentionPolicy": {
+					"enabled": true,
+					"days": 7
+				}
+			},
+			"dependsOn": [
+				"[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+			]
+		},
+		{
+			"name": "[concat(parameters('storageAccountName'), '/default')]",
+			"type": "Microsoft.Storage/storageAccounts/fileservices",
+			"apiVersion": "2021-08-01",
+			"properties": {
+				"shareDeleteRetentionPolicy": {
+					"enabled": true,
+					"days": 7
+				}
+			},
+			"dependsOn": [
+				"[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
+				"[concat(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '/blobServices/default')]"
+			]
+		}
+	],
+    "outputs": {
+		"storageAccountName": {
+			"type": "string",
+			"value": "[parameters('storageAccountName')]"
+		},
+		"storageAccountId": {
+			"type": "string",
+			"value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+		}
+    }
+}
