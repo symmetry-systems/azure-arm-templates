@@ -2,7 +2,7 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-        "dataGuardSubnet": {
+        "dataguardSubnet": {
             "type": "String",
 			"metadata": {
 				"description": "Subnet ID where DataGuard is hosted."
@@ -24,7 +24,6 @@
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2019-10-01",
 			"name": "[variables('nestedCreateStorageAccountDeployment')]",
-			"location": "[deployment().location]",
 			"properties": {
 				"expressionEvaluationOptions": {
 					"scope": "inner"
