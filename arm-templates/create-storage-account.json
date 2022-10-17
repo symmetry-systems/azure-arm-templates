@@ -1,0 +1,119 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataguardSubnet": {
+            "type": "String",
+			"metadata": {
+				"description": "Subnet ID where DataGuard is hosted."
+			}
+        },
+		"location": {
+			"type": "string",
+			"defaultValue": "EastUs",
+            "metadata": {
+				"description": "List of available regions for the resource type are: 'westus,eastus,northeurope,westeurope,eastasia,southeastasia,northcentralus,southcentralus,centralus,eastus2,japaneast,japanwest,brazilsouth,australiaeast,australiasoutheast,centralindia,southindia,westindia,canadacentral,canadaeast,westcentralus,westus2,ukwest,uksouth,koreacentral,koreasouth,francecentral,australiacentral,southafricanorth,uaenorth,switzerlandnorth,germanywestcentral,norwayeast,westus3,jioindiawest,swedencentral,qatarcentral."
+			}
+        }
+    },
+    "variables": {
+        "storageAccountName": "[format('store{0}', uniqueString(resourceGroup().id))]"
+    },
+    "resources": [{
+			"name": "[variables('storageAccountName')]",
+			"type": "Microsoft.Storage/storageAccounts",
+			"apiVersion": "2021-08-01",
+			"location": "[parameters('location')]",
+			"properties": {
+				"accessTier": "Hot",
+				"minimumTlsVersion": "TLS1_2",
+				"supportsHttpsTrafficOnly": true,
+				"allowBlobPublicAccess": false,
+				"allowSharedKeyAccess": false,
+				"allowCrossTenantReplication": false,
+				"defaultToOAuthAuthentication": true,
+				"networkAcls": {
+					"bypass": "AzureServices",
+					"virtualNetworkRules": [
+                        {
+                            "id": "[parameters('dataguardSubnet')]",
+                            "action": "Allow",
+                            "state": "Succeeded"
+                        }
+                    ],
+					"defaultAction": "Deny",
+					"ipRules": []
+				},
+				"isHnsEnabled": true,
+				"isSftpEnabled": false,
+				"encryption": {
+					"keySource": "Microsoft.Storage",
+					"services": {
+						"blob": {
+							"enabled": true
+						},
+						"file": {
+							"enabled": true
+						},
+						"table": {
+							"enabled": true
+						},
+						"queue": {
+							"enabled": true
+						}
+					},
+					"requireInfrastructureEncryption": false
+				}
+			},
+			"dependsOn": [],
+			"sku": {
+				"name": "Standard_RAGRS"
+			},
+			"kind": "StorageV2",
+			"tags": {}
+		},
+		{
+			"name": "[concat(variables('storageAccountName'), '/default')]",
+			"type": "Microsoft.Storage/storageAccounts/blobServices",
+			"apiVersion": "2021-08-01",
+			"properties": {
+				"deleteRetentionPolicy": {
+					"enabled": true,
+					"days": 7
+				},
+				"containerDeleteRetentionPolicy": {
+					"enabled": true,
+					"days": 7
+				}
+			},
+			"dependsOn": [
+				"[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+			]
+		},
+		{
+			"name": "[concat(variables('storageAccountName'), '/default')]",
+			"type": "Microsoft.Storage/storageAccounts/fileservices",
+			"apiVersion": "2021-08-01",
+			"properties": {
+				"shareDeleteRetentionPolicy": {
+					"enabled": true,
+					"days": 7
+				}
+			},
+			"dependsOn": [
+				"[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+				"[concat(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '/blobServices/default')]"
+			]
+		}
+	],
+    "outputs": {
+		"storageAccountName": {
+			"type": "string",
+			"value": "[variables('storageAccountName')]"
+		},
+		"storageAccountId": {
+			"type": "string",
+			"value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+		}
+    }
+}
