@@ -12,7 +12,7 @@
 		"identityId": {
 			"type": "string",
 			"metadata": {
-				"description": "Specifies the ID of the user-assigned managed identity used for dataguard."
+				"description": "Specifies the Object ID of the DataGuard Application Identity."
 			}
 		}
 	},
