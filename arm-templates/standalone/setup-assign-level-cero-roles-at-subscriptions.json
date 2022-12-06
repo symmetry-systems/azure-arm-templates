@@ -12,7 +12,7 @@
 		"identityId": {
 			"type": "string",
 			"metadata": {
-				"description": "Specifies the Object ID of the DataGuard Application Identity."
+				"description": "Specifies the Object ID of the DataGuard Enterprise Application Identity."
 			}
 		}
 	},
