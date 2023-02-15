@@ -26,7 +26,7 @@
                 "ipRules": [],
                 "virtualNetworkRules": []
             },
-            "publicNetworkAccess": "enabled",
+            "publicNetworkAccess": "disabled",
             "sku": {
                 "family": "A",
                 "name": "Standard"
