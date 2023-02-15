@@ -29,8 +29,8 @@
             },
             "publicNetworkAccess": "enabled",
             "sku": {
-            "family": "A",
-            "name": "string"
+                "family": "A",
+                "name": "Standard"
             },
             "softDeleteRetentionInDays": 0,
             "tenantId": "[subscription().tenantId]"
