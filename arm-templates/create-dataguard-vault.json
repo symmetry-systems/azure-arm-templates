@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vaultName": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2022-07-01",
+            "name": "[parameters('vaultName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+            "accessPolicies": [
+            ],
+            "publicNetworkAccess": "string",
+            "sku": {
+                "family": "A",
+                "name": "Standard"
+            },
+            "softDeleteRetentionInDays": 30
+            }
+        }
+    ]
+}
