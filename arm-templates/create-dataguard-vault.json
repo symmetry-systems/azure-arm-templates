@@ -8,20 +8,33 @@
     },
     "resources": [
         {
-            "type": "Microsoft.KeyVault/vaults",
-            "apiVersion": "2022-07-01",
-            "name": "[parameters('vaultName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-            "accessPolicies": [
-            ],
-            "publicNetworkAccess": "string",
-            "sku": {
-                "family": "A",
-                "name": "Standard"
+        "type": "Microsoft.KeyVault/vaults",
+        "apiVersion": "2022-07-01",
+        "name": "[parameters('vaultName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+            "accessPolicies": [],
+            "createMode": "default",
+            "enabledForDeployment": true,
+            "enabledForDiskEncryption": false,
+            "enabledForTemplateDeployment": true,
+            "enablePurgeProtection": false,
+            "enableRbacAuthorization": true,
+            "enableSoftDelete": false,
+            "networkAcls": {
+                "bypass": "None",
+                "defaultAction": "Deny",
+                "ipRules": [],
+                "virtualNetworkRules": []
             },
-            "softDeleteRetentionInDays": 30
-            }
+            "publicNetworkAccess": "enabled",
+            "sku": {
+            "family": "A",
+            "name": "string"
+            },
+            "softDeleteRetentionInDays": 0,
+            "tenantId": "[subscription().tenantId]"
+        }
         }
     ]
 }
