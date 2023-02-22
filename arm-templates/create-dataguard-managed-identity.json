@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "vaultName": {
+        "identityName": {
             "type": "string"
         }
     },
@@ -11,7 +11,7 @@
 			"type": "Microsoft.ManagedIdentity/userAssignedIdentities",
 			"apiVersion": "2018-11-30",
 			"location": "[resourceGroup().location]",
-			"name": "[parameters('vaultName')]"
+			"name": "[parameters('identityName')]"
 		}
     ]
 }
