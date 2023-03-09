@@ -139,6 +139,9 @@
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-07-01",
             "location": "[resourceGroup().location]",
+            "identity":{
+                "type": "SystemAssigned"
+            }, 
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
             ],
