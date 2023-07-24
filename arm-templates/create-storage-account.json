@@ -28,9 +28,9 @@
 				"accessTier": "Hot",
 				"minimumTlsVersion": "TLS1_2",
 				"supportsHttpsTrafficOnly": true,
-				"allowBlobPublicAccess": false,
-				"allowSharedKeyAccess": false,
-				"allowCrossTenantReplication": false,
+				"allowBlobPublicAccess": true,
+				"allowSharedKeyAccess": true,
+				"allowCrossTenantReplication": true,
 				"defaultToOAuthAuthentication": true,
 				"networkAcls": {
 					"bypass": "AzureServices",
@@ -44,7 +44,7 @@
 					"defaultAction": "Deny",
 					"ipRules": []
 				},
-				"isHnsEnabled": true,
+				"isHnsEnabled": false,
 				"isSftpEnabled": false,
 				"encryption": {
 					"keySource": "Microsoft.Storage",
