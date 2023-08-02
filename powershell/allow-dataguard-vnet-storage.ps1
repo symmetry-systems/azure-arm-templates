@@ -18,26 +18,29 @@ param(
   [string]$action # Specify either to 'create' or 'remove' the defined network configuration rule.
 )
 
-if (-not $tenantId) {
-    $tenantId = Read-Host "Enter the Customer Tenant ID"
-}
-
-if (-not $subscriptionsList) {
-    $subscriptionsList = @()
-    do {
-        $subscription = Read-Host "Enter a Subscription ID (type 'done' when finished)"
-        if ($subscription -ne 'done') {
-            $subscriptionsList += $subscription
-        }
-    } while ($subscription -ne 'done')
+if (-not $tenantId -and -not $subscriptionsList ) {
+    $inputOption = Read-Host "Choose an input option:`n1. Apply for all Subscriptions in Tenant.`n2. Apply for selected Subsriptions.`nOption"
+    
+    if ($inputOption -eq "1") {
+        $tenantId = Read-Host "Enter the Customer Tenant ID"
+    } 
+    elseif ($inputOption -eq "2") {
+        $subscriptionsList = @()
+        do {
+            $subscription = Read-Host "Enter a Subscription ID (type 'done' when finished) (comma-separated is supported)"
+            if ($subscription -ne 'done') {
+                $subscriptionsList += $subscription
+            }
+        } while ($subscription -ne 'done')
+    }
 }
 
 if (-not $subnetId) {
-    $subnetId = Read-Host "Enter the DataGuard private subnet resource ID:"
+    $subnetId = Read-Host "Enter the DataGuard private subnet resource ID"
 }
 
 if (-not $action) {
-    $action = Read-Host "Enter the script action ('create' or 'remove'):"
+    $action = Read-Host "Enter the script action ('create' or 'remove')"
 }
 
 if ($action -notin @('create', 'remove')) {
@@ -46,9 +49,10 @@ if ($action -notin @('create', 'remove')) {
 }
 
 function Create {
+    Write-Host "Adding network rule..."
     Get-AzStorageAccount | ForEach-Object {
         $storageAccount = $_
-        if ($_.PublicNetworkAccess -eq 'Disab led') {
+        if ($_.PublicNetworkAccess -eq 'Disabled') {
             Write-Host "Public network access disabled for: " $_.StorageAccountName
             -join('["', (($_).Id -join '","'), '"]') | Out-File "~/disabled_storage_accounts.txt"
             return
@@ -66,6 +70,7 @@ function Create {
 }
 
 function Remove {
+    Write-Host "Removing network rule..."
     Get-AzStorageAccount | ForEach-Object {
         $storageAccount = $_
         if ($_.PublicNetworkAccess -eq 'Disabled') {
@@ -85,25 +90,24 @@ function Remove {
         }           
 }
 
-Write-Host "Adding  network rule..."
 if ($tenantId -ne ""){
     Get-AzSubscription -TenantId $tenantId | Where-Object {$_.HomeTenantId -eq $tenantId} | ForEach-Object {
-        $_ | Set-AzContext
+        Set-AzContext -Subscription $_
         if ($action -eq "create"){
             Create
         }
-        elseif ($action -eq "remove"){
+        else {
             Remove
         }
     }
 }
 elseif ($subscriptionsList -ne $null) {
-    $subscriptionsList | ConvertFrom-Json | ForEach-Object {
+    $subscriptionsList | ForEach-Object {
         Set-AzContext -Subscription $_
         if ($action -eq "create"){
             Create
         }
-        elseif ($action -eq "remove"){
+        else {
             Remove
         }
     }          
