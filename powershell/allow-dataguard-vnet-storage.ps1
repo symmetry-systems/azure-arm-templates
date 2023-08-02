@@ -14,14 +14,41 @@
 param(
   [string]$tenantId, # The Customer Tenant
   [string[]]$subscriptionsList, # The Customer Subscription IDs List.
-  [string]$subnetId, # The DataGuard private subnet resource ID.
+  [string]$subnetId, # The  private subnet resource ID.
   [string]$action # Specify either to 'create' or 'remove' the defined network configuration rule.
 )
+
+if (-not $tenantId) {
+    $tenantId = Read-Host "Enter the Customer Tenant ID"
+}
+
+if (-not $subscriptionsList) {
+    $subscriptionsList = @()
+    do {
+        $subscription = Read-Host "Enter a Subscription ID (type 'done' when finished)"
+        if ($subscription -ne 'done') {
+            $subscriptionsList += $subscription
+        }
+    } while ($subscription -ne 'done')
+}
+
+if (-not $subnetId) {
+    $subnetId = Read-Host "Enter the DataGuard private subnet resource ID:"
+}
+
+if (-not $action) {
+    $action = Read-Host "Enter the script action ('create' or 'remove'):"
+}
+
+if ($action -notin @('create', 'remove')) {
+    Write-Host "Invalid action specified. Please enter either 'create' or 'remove'." -ForegroundColor Red
+    exit 1
+}
 
 function Create {
     Get-AzStorageAccount | ForEach-Object {
         $storageAccount = $_
-        if ($_.PublicNetworkAccess -eq 'Disabled') {
+        if ($_.PublicNetworkAccess -eq 'Disab led') {
             Write-Host "Public network access disabled for: " $_.StorageAccountName
             -join('["', (($_).Id -join '","'), '"]') | Out-File "~/disabled_storage_accounts.txt"
             return
