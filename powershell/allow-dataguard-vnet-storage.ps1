@@ -53,8 +53,9 @@ function Create {
     Get-AzStorageAccount | ForEach-Object {
         $storageAccount = $_
         if ($_.PublicNetworkAccess -eq 'Disabled') {
-            Write-Host "Public network access disabled for: " $_.StorageAccountName
-            -join('["', (($_).Id -join '","'), '"]') | Out-File "~/disabled_storage_accounts.txt"
+            $result = "Public network access disabled for: " + $_.StorageAccountName
+            Write-Host $result
+            $result | Out-File -Append "~/storage_accounts_log.txt"
             return
         }
         Get-AzStorageAccountNetworkRuleSet -ResourceGroupName $_.ResourceGroupName -AccountName $_.StorageAccountName | ForEach-Object {
@@ -64,6 +65,11 @@ function Create {
                 )
                 $result = $? ? "DataGuard network configuration added for: " + $storageAccount.StorageAccountName  : "Something went wrong trying to add network configuration for: " + $storageAccount.StorageAccountName
                 Write-Host $result
+                $result | Out-File -Append "~/storage_accounts_log.txt"
+            }else{
+                $result = "Public network access for " + $storageAccount.StorageAccountName + " enabled from all networks."
+                Write-Host $result
+                $result | Out-File -Append "~/storage_accounts_log.txt"
             }
         }           
     }
@@ -74,17 +80,22 @@ function Remove {
     Get-AzStorageAccount | ForEach-Object {
         $storageAccount = $_
         if ($_.PublicNetworkAccess -eq 'Disabled') {
-            Write-Host "Public network access disabled for: " $_.StorageAccountName
+            $result =  "Public network access disabled for: " + $_.StorageAccountName
+            Write-Host $result
+            $result | Out-File -Append "~/storage_accounts_log.txt"            
             return
         }
         Get-AzStorageAccountNetworkRuleSet -ResourceGroupName $_.ResourceGroupName -AccountName $_.StorageAccountName | ForEach-Object {
                 if ($_.virtualNetworkRules.VirtualNetworkResourceId -eq $subnetId ){
-                    Write-Host "DataGuard network configuration found for: " $storageAccount.StorageAccountName
+                    $result =  "DataGuard network configuration found for: " + $storageAccount.StorageAccountName
+                    Write-Host $result
+                    $result | Out-File -Append "~/storage_accounts_log.txt"      
                     Remove-AzStorageAccountNetworkRule -ResourceGroupName $storageAccount.ResourceGroupName -Name $storageAccount.StorageAccountName -VirtualNetworkRule (
                         @{VirtualNetworkResourceId = $subnetId}
                     )
                     $result = $? ? "DataGuard network configuration removed for: " + $storageAccount.StorageAccountName  : "Something went wrong trying to remove network configuration in: " + $storageAccount.StorageAccountName
                     Write-Host $result
+                    $result | Out-File -Append "~/storage_accounts_log.txt"      
                 }
             }
         }           
