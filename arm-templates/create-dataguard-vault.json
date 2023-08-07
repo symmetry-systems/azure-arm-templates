@@ -3,11 +3,12 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "vaultName": {
-            "type": "string"
+            "type": "string",
+            "metadata": { "description":  "Unique name for the key vault"}
         },
         "principalId": {
             "type": "string",
-            "metadata": "Anlysis VM System Managed IdentityObject ID"            
+            "metadata": { "description": "Anlysis VM System Managed Identity Object ID"}            
         }
     },
     "resources": [
@@ -17,7 +18,33 @@
         "name": "[parameters('vaultName')]",
         "location": "[resourceGroup().location]",
         "properties": {
-            "accessPolicies": [],
+            "accessPolicies": [
+                {
+                "objectId": "[parameters('principalId')]",
+                "permissions": {
+                "certificates": [ "Get" ],
+                "keys": [ "Get" ],
+                "secrets": ["Get",
+                            "Set",
+                            "List",
+                            "Purge" ],
+                "storage": [ "Get" ]
+                },
+                "tenantId": "[subscription().tenantId]"
+            },{
+                "objectId": "[parameters('principalId')]",
+                "permissions": {
+                "certificates": [ "Get" ],
+                "keys": [ "Get" ],
+                "secrets": ["Get",
+                            "Set",
+                            "List",
+                            "Purge" ],
+                "storage": [ "Get" ]
+                },
+                "tenantId": "[subscription().tenantId]"
+            }
+            ],
             "createMode": "default",
             "enabledForDeployment": false,
             "enabledForDiskEncryption": false,
@@ -30,24 +57,13 @@
                 "ipRules": [],
                 "virtualNetworkRules": []
             },
-            "publicNetworkAccess": "disabled",
+            "publicNetworkAccess": "enabled",
             "sku": {
                 "family": "A",
                 "name": "Standard"
             },
             "tenantId": "[subscription().tenantId]"
         }
-        },
-	{
-		"type": "Microsoft.Authorization/roleAssignments",
-		"apiVersion": "2021-04-01-preview",
-		"name": "[guid(concat(subscription().id, 'keyvaultsecretsuser'))]",
-		"properties": {
-			"roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', '4633458b-17de-408a-b874-0445c86b69e6')]",
-			"principalId": "[parameters('principalId')]",
-			"scope": "[concat(subscription().id, '/resourceGroups/',resourceGroup().name,'/providers/Microsoft.KeyVault/vaults/',parameters('vaultName'))]",
-			"principalType": "ServicePrincipal"
-		}
-	}
+        }
     ]
 }
