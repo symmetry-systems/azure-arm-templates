@@ -29,7 +29,7 @@ if (-not $tenantId -and -not $subscriptionsList ) {
         do {
             $subscription = Read-Host "Enter a Subscription ID (type 'done' when finished) (comma-separated is supported)"
             if ($subscription -ne 'done') {
-                $subscriptionsList += """ + $subscription + """
+                $subscriptionsList += $subscription
             }
         } while ($subscription -ne 'done')
     }
