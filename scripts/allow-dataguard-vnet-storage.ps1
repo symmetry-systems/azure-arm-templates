@@ -113,7 +113,8 @@ if ($tenantId -ne ""){
     }
 }
 elseif ($subscriptionsList -ne $null) {
-    $subscriptionsList | ConvertFrom-Json |  ForEach-Object {
+    $subscriptionsArray = $subscriptionsList -split ','
+    $subscriptionsArray | ForEach-Object {
         Set-AzContext -Subscription $_
         if ($action -eq "create"){
             Create
