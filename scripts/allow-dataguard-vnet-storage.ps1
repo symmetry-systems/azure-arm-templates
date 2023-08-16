@@ -1,6 +1,6 @@
 <#
     .Synopsis
-        Allow Dataguard VNet access to all storage accounts through Service Endpoints.
+        Allow Dataguard VNet access to storage accounts through Service Endpoints.
     .Description
         This script will iterate through all the storage accounts across a specified subscription.
         If it found storage account :

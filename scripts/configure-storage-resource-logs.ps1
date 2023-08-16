@@ -1,15 +1,15 @@
 <#
     .Synopsis
-        Configure the diagnostic settings for resource logs of all storage account in all subscriptions to Dataguard storage account.
+        Configure the diagnostic settings for resource logs of all storage account in tenant or selected subscriptions to Dataguard storage account.
     .Description
-        This script will iterate through all the storage accounts across all subscriptions and configures the dumping of resource logs
-        of all the storage accounts found in the dataguard storage account.
+        This script will iterate through all the storage accounts across all specified subscriptions and configures the dumping of storage resource logs
+        in the dataguard storage account.
 #>
 
 param(
     [string]$tenantId, # The Tenant ID where DataGuard is deployed.
     [string[]]$subscriptionsList, # The Customer Subscription IDs List.
-    [string]$targetStorageAccountId # Target DataGuard logs storage account resource ID.
+    [string]$dataguardResourceGroupID # Target DataGuard resource group ID with target logs storage accounts.
   )
 
 $DiagnosticSettingName = "dataguard-resouce-diagnostics"
@@ -31,8 +31,8 @@ if (-not $tenantId -and -not $subscriptionsList ) {
     }
 }
 
-if (-not $targetStorageAccountId) {
-    $targetStorageAccountId = Read-Host "Enter the target DataGuard logs storage account resource ID"
+if (-not $dataguardResourceGroupID) {
+    $dataguardResourceGroupID = Read-Host "Enter the target DataGuard logs storage account resource ID"
 }
 
 if (-not $action) {
@@ -44,6 +44,16 @@ if ($action -notin @('create', 'remove')) {
     exit 1
 }
 
+if ($dataguardResourceGroupID -match "/subscriptions/([0-9a-fA-F-]+)/resourceGroups/([^/]+)") {
+    $dataguardSubId = $matches[1]
+    $dataguardResourceGroupName = $matches[2]
+}
+
+$location_storage_dict = @{}
+Set-AzContext -SubscriptionId $dataguardSubId
+Get-AzStorageAccount -ResourceGroupName $dataguardResourceGroupName | ForEach-Object {
+    $location_storage_dict[($_.Location -replace '\s','').ToLower()] = $_.Id
+}
 function Configure {
     param (
         [bool]$enabled
@@ -51,7 +61,17 @@ function Configure {
     $action = $enabled ? "enabled" : "disabled"
     Write-Host "Configuring storage resource logs..." 
         Get-AzStorageAccount | ForEach-Object {
-            $ResourceId =$_.Id
+            $ResourceId =$_.Id            
+            $storageaccountLocation = ($_.Location -replace '\s','').ToLower()
+            $targetStorageAccountId = $location_storage_dict[$storageaccountLocation]
+
+            if ($null -eq $targetStorageAccountId) {
+                $result = 'No target storage account found in region ' + $storageaccountLocation + ' for storage account ' + $_.StorageAccountName
+                Write-Host $result
+                $result | Out-File -Append "~/storage_resource_log_output.txt"
+                return
+            }
+
             $log = @()
             $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled -Category StorageRead -RetentionPolicyDay 7 -RetentionPolicyEnabled $true
             $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled -Category StorageWrite -RetentionPolicyDay 7 -RetentionPolicyEnabled $true
@@ -81,7 +101,7 @@ if ($tenantId -ne ""){
         }
     }
 }
-elseif ($subscriptionsList -ne $null) {
+elseif ($null -ne $subscriptionsList) {
     $subscriptionsArray = $subscriptionsList -split ','
     $subscriptionsArray | ForEach-Object {
         Set-AzContext -Subscription $_
