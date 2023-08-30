@@ -577,6 +577,10 @@
 		"vaultName": {
 			"type": "string",
 			"value": "[resourceID('Microsoft.KeyVault/vaults/',variables('vaultName'))]"
-		}
+		},
+        "bastionPublicIP": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', 'dataguard-nat-public-ip')).IpAddress]"
+        }
     }
 }
