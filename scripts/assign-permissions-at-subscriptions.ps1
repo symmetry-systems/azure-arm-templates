@@ -7,7 +7,7 @@
 param(
   [string]$tenantId, # The Customer Tenant
   [string[]]$subscriptionsList, # The Customer Subscription IDs List.
-  [string]$principalId, # The dataguard principal id.
+  [string]$principalName, # The dataguard service principal display name.
   [string]$action # Specify either to 'assign' or 'remove' the defined network configuration rule.
 )
 
@@ -28,8 +28,9 @@ if (-not $tenantId -and -not $subscriptionsList ) {
     }
 }
 
-if (-not $principalId) {
-    $principalId = Read-Host "Enter the DataGuard principal ID"
+if (-not $principalName) {
+    $principalName = Read-Host "Enter the DataGuard service principal name"
+    $principalId = $(Get-AzADServicePrincipal -DisplayName dg-test-arm-deploy).Id
 }
 
 if (-not $action) {
@@ -43,7 +44,8 @@ if ($action -notin @('assign', 'remove')) {
 
 function Assign {
     param (
-        [string]$subscriptionId
+        [string]$subscriptionId,
+        [string]$principalId
     )
     Write-Host "Assigning permissions..."
     New-AzRoleAssignment -Scope "/subscriptions/$subscriptionId" -RoleDefinitionName "Reader" -ObjectId $principalId
@@ -52,7 +54,8 @@ function Assign {
 
 function Remove {
     param (
-        [string]$subscriptionId
+        [string]$subscriptionId,
+        [string]$principalId
     )
     Write-Host "Removing permissions..."
     Remove-AzRoleAssignment -Scope "/subscriptions/$subscriptionId" -RoleDefinitionName "Reader" -ObjectId $principalId
@@ -63,10 +66,10 @@ if ($tenantId -ne ""){
     Get-AzSubscription -TenantId $tenantId | Where-Object {$_.HomeTenantId -eq $tenantId} | ForEach-Object {
         Set-AzContext -Subscription $_
         if ($action -eq "assign"){
-            Assign -subscriptionId $_
+            Assign -subscriptionId $_ -principalId $principalId 
         }
         else {
-            Remove -subscriptionId $_
+            Remove -subscriptionId $_ -principalId $principalId
         }
     }
 }
@@ -75,10 +78,10 @@ elseif ($subscriptionsList -ne $null) {
     $subscriptionsArray | ForEach-Object {
         Set-AzContext -Subscription $_
         if ($action -eq "assign"){
-            Assign -subscriptionId $_
+            Assign -subscriptionId $_ -principalId $principalId
         }
         else {
-            Remove -subscriptionId $_
+            Remove -subscriptionId $_ -principalId $principalId
         }
     }          
 }
