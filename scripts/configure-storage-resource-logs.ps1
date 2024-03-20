@@ -73,9 +73,9 @@ function Configure {
             }
 
             $log = @()
-            $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled -Category StorageRead -RetentionPolicyDay 7 -RetentionPolicyEnabled $true
-            $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled -Category StorageWrite -RetentionPolicyDay 7 -RetentionPolicyEnabled $true
-            $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled  -Category StorageDelete -RetentionPolicyDay 7 -RetentionPolicyEnabled $true
+            $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled -Category StorageRead
+            $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled -Category StorageWrite
+            $log += New-AzDiagnosticSettingLogSettingsObject -Enabled $enabled  -Category StorageDelete
             $Ids = @($ResourceId + "/blobServices/default"
                     $ResourceId + "/fileServices/default"
                     $ResourceId + "/queueServices/default"
