@@ -1,8 +1,8 @@
 <#
     .Synopsis
-        Add diagnostic settings for resource logs of all storage accounts in tenant or selected subscriptions to Dataguard logs storage account.
+        Configure the diagnostic settings for resource logs of all storage account in tenant or selected subscriptions to Dataguard storage account.
     .Description
-        This script will iterate through all the storage accounts across all specified subscriptions, and configures the dumping of storage resource logs
+        This script will iterate through all the storage accounts across all specified subscriptions and configures the dumping of storage resource logs
         in the dataguard storage account.
 #>
 
@@ -12,7 +12,7 @@ param(
     [string]$dataguardResourceGroupID # Target DataGuard resource group ID with target logs storage accounts.
   )
 
-$DiagnosticSettingName = "dataguard-resource-diagnostics"
+$DiagnosticSettingName = "dataguard-resouce-diagnostics"
 
 if (-not $tenantId -and -not $subscriptionsList ) {
     $inputOption = Read-Host "Choose an input option:`n1. Apply for all Subscriptions in Tenant.`n2. Apply for selected Subsriptions.`nOption"
@@ -32,7 +32,7 @@ if (-not $tenantId -and -not $subscriptionsList ) {
 }
 
 if (-not $dataguardResourceGroupID) {
-    $dataguardResourceGroupID = Read-Host "Enter the target DataGuard logs storage account resource ID"
+    $dataguardResourceGroupID = Read-Host "Enter the resource group ID that contain target storage accounts"
 }
 
 if (-not $action) {
