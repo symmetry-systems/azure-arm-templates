@@ -1,17 +1,17 @@
 <# 
     .Synopsis
-        Assign read access to OneDrive sites for DataGuard reader application registration.
+        Assign read access to SharePoint sites for DataGuard reader application registration.
     .Description
-        This script will prompt for necessary fields such as Tenant ID, OneDrive site names, and Reader Application Registration client ID, 
-        and then assign or remove read access to the OneDrive sites using Microsoft Graph APIs.
+        This script will prompt for necessary fields such as Tenant ID, SharePoint site names, and Reader Application Registration client ID, 
+        and then assign or remove read access to the SharePoint sites using Microsoft Graph APIs.
 #>
 
 param(
   [string]$tenantId,            # The Azure Tenant ID
-  [string[]]$oneDriveSiteNames, # List of OneDrive Site names
+  [string[]]$sharePointSiteNames, # List of SharePoint Site names
   [string]$clientId,            # The DataGuard reader Application Registration client ID
   [string]$outputFile = "DataGuardGrantedAccessSites.txt",  # Output file for granted site names
-  [string]$action # Specify either to 'assign' or 'remove' read permission to onedrive sites.
+  [string]$action # Specify either to 'assign' or 'remove' read permission to sharepoint sites.
 )
 
 # Prompt for Tenant ID if not provided
@@ -19,13 +19,13 @@ if (-not $tenantId) {
     $tenantId = Read-Host "Enter the Azure Tenant ID"
 }
 
-# Prompt for OneDrive site names if not provided
-if (-not $oneDriveSiteNames) {
-    $oneDriveSiteNames = @()
+# Prompt for  site names if not provided
+if (-not $sharePointSiteNames) {
+    $sharePointSiteNames = @()
     do {
-        $siteName = Read-Host "Enter a OneDrive site name (type 'done' when finished)"
+        $siteName = Read-Host "Enter a SharePoint site name (type 'done' when finished)"
         if ($siteName -ne 'done') {
-            $oneDriveSiteNames += $siteName
+            $sharePointSiteNames += $siteName
         }
     } while ($siteName -ne 'done')
 }
@@ -44,7 +44,7 @@ if ($action -notin @('assign', 'remove')) {
     exit 1
 }
 
-# Function to get OneDrive site ID by site path (name string)
+# Function to get SharePoint site ID by site path (name string)
 function Get-SiteIdByName {
     param (
         [string]$siteName
@@ -57,7 +57,7 @@ function Get-SiteIdByName {
     return $site.id
 }
 
-# Function to assign read access to a OneDrive site for the application
+# Function to assign read access to a SharePoint site for the application
 function Grant-ReadAccess {
     param (
         [string]$siteName,
@@ -117,7 +117,7 @@ Connect-MgGraph -Scopes $scopes -TenantId $tenantId
 $grantedSiteNames = @()
 
 # Iterate each site name provided, get the site ID and grant read access.
-foreach ($siteName in $oneDriveSiteNames) {
+foreach ($siteName in $sharePointSiteNames) {
     try {
         $siteId = Get-SiteIdByName -siteName $siteName
         if ($action -eq "assign"){
