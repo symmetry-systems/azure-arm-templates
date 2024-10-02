@@ -1,9 +1,9 @@
 <# 
     .Synopsis
-        Assign read access to OneDrive sites for an application.
+        Assign read access to OneDrive sites for DataGuard reader application registration.
     .Description
         This script will prompt for necessary fields such as Tenant ID, OneDrive site names, and Reader Application Registration client ID, 
-        and then assign read access to the OneDrive sites using Microsoft Graph API.
+        and then assign or remove read access to the OneDrive sites using Microsoft Graph APIs.
 #>
 
 param(
