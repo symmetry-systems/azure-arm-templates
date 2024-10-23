@@ -2,15 +2,17 @@
     .Synopsis
         Assign read access to SharePoint sites for DataGuard reader application registration.
     .Description
-        This script will prompt for necessary fields such as Tenant ID, SharePoint site names, and Reader Application Registration client ID, 
+        This script will prompt for necessary fields such as Tenant ID, SharePoint site urls, and Reader Application Registration client ID, 
         and then assign or remove read access to the SharePoint sites using Microsoft Graph APIs.
+    .Example
+        ./assign-read-permission-to-sharepoint-sites-by-site-url.ps1 -TenantId TENANT_ID -sharePointSites ("https://contoso.sharepoint.com/sites/example-site-1","https://contoso.sharepoint.com/sites/test-site-33") -clientId "APP_CLIENT_ID" -action "assign"
 #>
 
 param(
   [string]$tenantId,            # The Azure Tenant ID
-  [string[]]$sharePointSiteNames, # List of SharePoint Site names
+  [string[]]$sharePointSites, # List of SharePoint Site urls
   [string]$clientId,            # The DataGuard reader Application Registration client ID
-  [string]$outputFile = "DataGuardGrantedAccessSites.txt",  # Output file for granted site names
+  [string]$outputFile = "DataGuardGrantedAccessSites.txt",  # Output file for granted sites
   [string]$action # Specify either to 'assign' or 'remove' read permission to sharepoint sites.
 )
 
@@ -20,14 +22,14 @@ if (-not $tenantId) {
 }
 
 # Prompt for  site names if not provided
-if (-not $sharePointSiteNames) {
-    $sharePointSiteNames = @()
+if (-not $sharePointSites) {
+    $sharePointSites = @()
     do {
-        $siteName = Read-Host "Enter a SharePoint site name (type 'done' when finished)"
-        if ($siteName -ne 'done') {
-            $sharePointSiteNames += $siteName
+        $site = Read-Host "Enter a SharePoint site url (type 'done' when finished)"
+        if ($site -ne 'done') {
+            $sharePointSites += $site
         }
-    } while ($siteName -ne 'done')
+    } while ($site -ne 'done')
 }
 
 # Prompt for Application client ID if not provided
@@ -44,17 +46,27 @@ if ($action -notin @('assign', 'remove')) {
     exit 1
 }
 
-# Function to get SharePoint site ID by site path (name string)
-function Get-SiteIdByName {
+# Get SharePoint site ID by site path
+function Get-SiteIdByUrl {
     param (
-        [string]$siteName
+        [string]$siteUrl
     )
 
-    $rootSite = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/sites/root"
-    $domain = $rootSite.siteCollection.hostname
+    $url = $siteUrl.Split("/")
+    $domain = $url[2]
+    $siteName = $url[4]
 
     $site = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/sites/${domain}:/sites/$siteName"
     return $site.id
+}
+
+# Get SharePoint site name by site ID
+function Get-SiteNameById {
+    param (
+        [string]$siteId
+    )
+    $site = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/sites/$siteId"
+    return $site.name
 }
 
 # Function to assign read access to a SharePoint site for the application
@@ -76,7 +88,7 @@ function Grant-ReadAccess {
         )
     }
     Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions" -Body ($body | ConvertTo-Json -Depth 3) -ContentType "application/json"
-    $result = $? ? "DataGuard permission added successfully in: " + $siteName  : "Something went wrong trying to add DataGuard permission in: " + $siteName
+    $result = $? ? "DataGuard permission added successfully in: " + $siteName + "(ID: $siteId)": "Something went wrong trying to add DataGuard permission in: " + $siteName + "(ID: $siteId)"
     Write-Host $result
     $result | Out-File -Append $outputFile
 }
@@ -100,7 +112,7 @@ function Remove-ReadAccess {
         
         Invoke-MgGraphRequest -Method DELETE -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions/$permissionId"
         
-        $result = $? ? "DataGuard permission removed successfully in: " + $siteName  : "Something went wrong trying to remove DataGuard permission in: " + $siteName
+        $result = $? ? "DataGuard permission removed successfully in: " + $siteName + "(ID: $siteId)" : "Something went wrong trying to remove DataGuard permission in: " + $siteName + "(ID: $siteId)"
         Write-Host $result
         $result | Out-File -Append $outputFile
 
@@ -116,10 +128,11 @@ Connect-MgGraph -Scopes $scopes -TenantId $tenantId
 
 $grantedSiteNames = @()
 
-# Iterate each site name provided, get the site ID and grant read access.
-foreach ($siteName in $sharePointSiteNames) {
+# Iterate each site name or ID provided.
+foreach ($siteInput in $sharePointSites) {
     try {
-        $siteId = Get-SiteIdByName -siteName $siteName
+        $siteId = Get-SiteIdByUrl -siteUrl $siteInput
+        $siteName = Get-SiteNameById -siteId $siteId
         if ($action -eq "assign"){
             Write-Host "Granting DataGuard read access to site: $siteName (ID: $siteId)"
             Grant-ReadAccess -siteName $siteName -siteId $siteId -appId $clientId
@@ -134,5 +147,3 @@ foreach ($siteName in $sharePointSiteNames) {
         Write-Host "Failed to process site: $siteName" -ForegroundColor Red
     }
 }
-
-Disconnect-MgGraph
