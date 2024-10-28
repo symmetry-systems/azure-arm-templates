@@ -91,7 +91,7 @@ function Grant-ReadAccess {
         )
     }
     Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions" -Body ($body | ConvertTo-Json -Depth 3) -ContentType "application/json"
-    $result = $? ? "DataGuard permission added successfully in: " + $siteName  : "Something went wrong trying to add DataGuard permission in: " + $siteName
+    $result = $? ? "DataGuard permission added successfully in: $siteName (ID: $siteId)": "Something went wrong trying to add DataGuard permission in: $siteName (ID: $siteId)"
     Write-Host $result
     $result | Out-File -Append $outputFile
 }
@@ -115,7 +115,7 @@ function Remove-ReadAccess {
         
         Invoke-MgGraphRequest -Method DELETE -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions/$permissionId"
         
-        $result = $? ? "DataGuard permission removed successfully in: " + $siteName  : "Something went wrong trying to remove DataGuard permission in: " + $siteName
+        $result = $? ? "DataGuard permission removed successfully in: $siteName (ID: $siteId)" : "Something went wrong trying to remove DataGuard permission in: $siteName (ID: $siteId)"
         Write-Host $result
         $result | Out-File -Append $outputFile
 
