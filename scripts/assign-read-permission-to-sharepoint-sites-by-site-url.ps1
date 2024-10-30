@@ -112,11 +112,7 @@ function Remove-ReadAccess {
         
         Invoke-MgGraphRequest -Method DELETE -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions/$permissionId"
         
-<<<<<<< Updated upstream
-        $result = $? ? "DataGuard permission removed successfully in: " + $siteName + "(ID: $siteId)" : "Something went wrong trying to remove DataGuard permission in: " + $siteName + "(ID: $siteId)"
-=======
         $result = $? ? "DataGuard permission removed successfully in: $siteName (ID: $siteId)" : "Something went wrong trying to remove DataGuard permission in: $siteName (ID: $siteId)"
->>>>>>> Stashed changes
         Write-Host $result
         $result | Out-File -Append $outputFile
 
