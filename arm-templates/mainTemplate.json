@@ -12,13 +12,13 @@
         "bastionAdminPublicKey": {
             "type": "string",
             "metadata": {
-                "description": "Specifies the SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
+                "description": "Specifies the Bastion VM SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
             }
         },
 		"analysisAdminPublicKey": {
             "type": "string",
             "metadata": {
-                "description": "Specifies the SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
+                "description": "Specifies the Analysis VM SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
             }
         }
     },
@@ -26,12 +26,12 @@
 		"vnetName": "dataguard-vnet",
         "storageAccountName": "[format('store{0}', uniqueString(resourceGroup().id))]",
 		"bastionName": "dataguard-bastion-vm",
-        "bastionNetworkInterfaceName": "[concat(variables('bastionName'), '-', 'network-intr-face')]",
+        "bastionNetworkInterfaceName": "dg-public-nic",
         "bastionNetworkSecurityGroupName": "[concat(variables('bastionName'), '-', 'nsg')]",
         "bastionPublicIpAddressName": "[concat(variables('bastionName'), '-', 'ip')]",
 		"bastionSize": "Standard_B2s",
 		"analysisName": "dataguard-analysis-vm",
-		"analysisNetworkInterfaceName": "[concat(variables('analysisName'), '-', 'network-intr-face')]",
+		"analysisNetworkInterfaceName": "dg-private-nic",
         "analysisNetworkSecurityGroupName": "[concat(variables('analysisName'), '-', 'nsg')]",
         "analysisPublicIpAddressName": "[concat(variables('analysisName'), '-', 'ip')]",
 		"analysisSize": "Standard_D16as_v5",
@@ -78,6 +78,9 @@
                                 },
                                 {
                                     "service": "Microsoft.Sql"
+                                },
+                                {
+                                "service": "Microsoft.KeyVault"
                                 }
                               ],
                             "privateEndpointNetworkPolicies": "Disabled",
@@ -85,15 +88,7 @@
                                 "id": "[resourceId('Microsoft.Network/natGateways', 'dataguard-nat')]"
                               }
                         }
-                    },
-                    {
-                        "name": "app-gw-subnet",
-                        "properties": {
-                            "addressPrefix": "10.10.3.0/24",
-                            "privateEndpointNetworkPolicies": "Disabled"
-                        }
                     }
-                    
                 ]
             },
             "dependsOn": [
@@ -235,7 +230,7 @@
             "properties": {
                 "ipConfigurations": [
                     {
-                        "name": "ipconfig1",
+                        "name": "ipconfiguration",
                         "properties": {
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'public-subnet')]"
@@ -385,11 +380,16 @@
             "properties": {
                 "ipConfigurations": [
                     {
-                        "name": "ipconfig1",
+                        "name": "ipconfiguration",
                         "properties": {
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('vnetName'), 'private-subnet')]"
                             },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'dg-lb','dg-backend-pool')]"
+                                }
+                            ],
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "10.10.2.42"
                         }
@@ -487,7 +487,7 @@
                         "managedDisk": {
                             "storageAccountType": "Premium_LRS"
                         },
-                        "diskSizeGB": 1024
+                        "diskSizeGB": 2048
                     },
                     "imageReference": {
                         "publisher": "canonical",
@@ -524,8 +524,9 @@
         "type": "Microsoft.KeyVault/vaults",
         "apiVersion": "2022-07-01",
         "dependsOn": [
-            "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',concat(variables('analysisName'),'-mi'))]"
-        ],
+        "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',concat(variables('analysisName'),'-mi'))]",
+        "[resourceId('Microsoft.Network/VirtualNetworks', variables('vnetName'))]"
+      ],
         "name": "[variables('vaultName')]",
         "location": "[resourceGroup().location]",
         "properties": {
@@ -535,10 +536,7 @@
                 "permissions": {
                 "certificates": [ "Get" ],
                 "keys": [ "Get" ],
-                "secrets": ["Get",
-                            "Set",
-                            "List",
-                            "Purge" ],
+                "secrets": ["Get", "Set", "Delete", "Purge", "Recover", "Backup", "Restore" ],
                 "storage": [ "Get" ]
                 },
                 "tenantId": "[subscription().tenantId]"
@@ -554,7 +552,11 @@
                 "bypass": "None",
                 "defaultAction": "Deny",
                 "ipRules": [],
-                "virtualNetworkRules": []
+                "virtualNetworkRules": [
+                    {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'private-subnet')]"
+                    }
+                ]
             },
             "publicNetworkAccess": "enabled",
             "sku": {
@@ -563,7 +565,86 @@
             },
             "tenantId": "[subscription().tenantId]"
         }
+    },
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "apiVersion": "2022-09-01",
+      "name": "dg-lb",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "backendAddressPools": [
+          {
+            "name": "dg-backend-pool"
+            }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "dg-lb-rule",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'dg-lb','dg-ip-conf')]"
+              },
+              "backendAddressPool": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'dg-lb','dg-backend-pool')]"
+              },
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', 'dg-lb','dg-https-probe')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 443,
+              "backendPort": 443,
+              "idleTimeoutInMinutes": 4,
+              "enableFloatingIP": false,
+              "disableOutboundSnat": true,
+              "loadDistribution": "Default"
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "dg-https-probe",
+            "properties": {
+              "protocol": "Https",
+              "port": 443,
+              "requestPath": "/",
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }
+          }
+        ],
+        "frontendIPConfigurations": [
+          {
+            "name": "dg-ip-conf",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'dg-lb-ip')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'dg-lb-ip')]"
+      ],
+      "resources": [
+      ]
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2022-09-01",
+      "name": "dg-lb-ip",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static"
         }
+    }
 	],
     "outputs": {
 		"storageAccountId": {
