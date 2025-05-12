@@ -54,9 +54,10 @@ function Get-SiteIdByUrl {
 
     $url = $siteUrl.Split("/")
     $domain = $url[2]
+    $type = $url[3]
     $siteName = $url[4]
 
-    $site = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/sites/${domain}:/sites/$siteName"
+    $site = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/sites/${domain}:/$type/$siteName"
     return $site.id
 }
 
