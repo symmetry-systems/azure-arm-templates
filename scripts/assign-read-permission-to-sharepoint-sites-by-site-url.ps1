@@ -54,7 +54,7 @@ function Get-SiteIdByUrl {
 
     $url = $siteUrl.Split("/")
     $domain = $url[2]
-    $type = $url[3]
+    $type = $url[3] # "/sites" for SharePoint sites and "/personal" for personal OneDrive Business
     $siteName = $url[4]
 
     $site = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/sites/${domain}:/$type/$siteName"
