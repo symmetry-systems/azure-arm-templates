@@ -5,13 +5,17 @@
         This script will prompt for necessary fields such as Tenant ID, SharePoint site urls, and Reader Application Registration client ID, 
         and then assign or remove read access to the SharePoint sites using Microsoft Graph APIs.
     .Example
-        ./assign-read-permission-to-sharepoint-sites-by-site-url.ps1 -TenantId TENANT_ID -sharePointSites ("https://contoso.sharepoint.com/sites/example-site-1","https://contoso.sharepoint.com/sites/test-site-33") -clientId "APP_CLIENT_ID" -action "assign"
+        ./assign-read-permission-to-sharepoint-sites-by-site-url.ps1 `
+            -TenantId TENANT_ID `
+            -sharePointSites ("https://contoso.sharepoint.com/sites/example-site-1","https://contoso.sharepoint.com/sites/test-site-2") `
+            -clientIds @("APP_ID_1", "APP_ID_2") `
+            -action "assign"
 #>
 
 param(
   [string]$tenantId,            # The Azure Tenant ID
   [string[]]$sharePointSites, # List of SharePoint Site urls
-  [string]$clientId,            # The DataGuard reader Application Registration client ID
+  [string[]]$clientIds,            # The DataGuard reader Application Registration client IDs
   [string]$outputFile = "DataGuardGrantedAccessSites.txt",  # Output file for granted sites
   [string]$action # Specify either to 'assign' or 'remove' read permission to sharepoint sites.
 )
@@ -33,8 +37,14 @@ if (-not $sharePointSites) {
 }
 
 # Prompt for Application client ID if not provided
-if (-not $clientId) {
-    $clientId = Read-Host "Enter the Application (Client) ID"
+if (-not $clientIds) {
+    $clientIds = @()
+    do {
+        $appId = Read-Host "Enter an Application (Client) ID (type 'done' when finished)"
+        if ($appId -ne 'done') {
+            $clientIds += $appId
+        }
+    } while ($appId -ne 'done')
 }
 
 if (-not $action) {
@@ -75,15 +85,17 @@ function Grant-ReadAccess {
     param (
         [string]$siteName,
         [string]$siteId,
-        [string]$appId
+        [string[]]$appIds
     )
+
+    foreach ($appId in $appIds) {    
     $body = @{
         roles = @("read")
         grantedToIdentities = @(
             @{
                 application = @{
                     id = $appId
-                    displayName = "Granting read access to DataGuard"
+                    displayName = "Read access for DataGuard App $appId"
                 }
             }
         )
@@ -92,33 +104,36 @@ function Grant-ReadAccess {
     $result = $? ? "DataGuard permission added successfully in: $siteName (ID: $siteId)": "Something went wrong trying to add DataGuard permission in: $siteName (ID: $siteId)"
     Write-Host $result
     $result | Out-File -Append $outputFile
+    }
 }
 
 function Remove-ReadAccess {
     param (
         [string]$siteName,
         [string]$siteId,
-        [string]$appId
+        [string[]]$appIds
     )
 
     $permissions = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions"
 
-    # Match permission for DataGuard application
-    $permissionToRemove = $permissions.value | Where-Object { 
-        $_.grantedToIdentities[0].application.id -eq $appId
-    }
+    foreach ($appId in $appIds) {
+        # Match permission for DataGuard application
+        $permissionToRemove = $permissions.value | Where-Object { 
+            $_.grantedToIdentities[0].application.id -eq $appId
+        }
 
-    if ($permissionToRemove -ne $null) {
-        $permissionId = $permissionToRemove.id
-        
-        Invoke-MgGraphRequest -Method DELETE -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions/$permissionId"
-        
-        $result = $? ? "DataGuard permission removed successfully in: $siteName (ID: $siteId)" : "Something went wrong trying to remove DataGuard permission in: $siteName (ID: $siteId)"
-        Write-Host $result
-        $result | Out-File -Append $outputFile
+        if ($permissionToRemove -ne $null) {
+            $permissionId = $permissionToRemove.id
+            
+            Invoke-MgGraphRequest -Method DELETE -Uri "https://graph.microsoft.com/v1.0/sites/$siteId/permissions/$permissionId"
+            
+            $result = $? ? "DataGuard permission removed successfully in: $siteName (ID: $siteId)" : "Something went wrong trying to remove DataGuard permission in: $siteName (ID: $siteId)"
+            Write-Host $result
+            $result | Out-File -Append $outputFile
 
-    } else {
-        Write-Host "No permission found for app: $appId on site: $siteName"
+        } else {
+            Write-Host "No permission found for app: $appId on site: $siteName"
+        }
     }
 }
 
@@ -130,21 +145,21 @@ Connect-MgGraph -Scopes $scopes -TenantId $tenantId
 $grantedSiteNames = @()
 
 # Iterate each site name or ID provided.
-foreach ($siteInput in $sharePointSites) {
+foreach ($siteUrl in $sharePointSites) {
     try {
-        $siteId = Get-SiteIdByUrl -siteUrl $siteInput
+        $siteId = Get-SiteIdByUrl -siteUrl $siteUrl
         $siteName = Get-SiteNameById -siteId $siteId
         if ($action -eq "assign"){
             Write-Host "Granting DataGuard read access to site: $siteName (ID: $siteId)"
-            Grant-ReadAccess -siteName $siteName -siteId $siteId -appId $clientId
+            Grant-ReadAccess -siteName $siteName -siteId $siteId -appId $clientIds
         }
         else {
             Write-Host "Removing DataGuard read access to site: $siteName (ID: $siteId)"
-            Remove-ReadAccess -siteName $siteName -siteId $siteId -appId $clientId
+            Remove-ReadAccess -siteName $siteName -siteId $siteId -appId $clientIds
         }
 
     }
     catch {
-        Write-Host "Failed to process site: $siteName" -ForegroundColor Red
+        Write-Host "Failed to process site: $siteUrl" -ForegroundColor Red
     }
 }
