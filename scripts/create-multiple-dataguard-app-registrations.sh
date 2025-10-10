@@ -13,6 +13,12 @@ declare -a permissions=(
 graphApiId="00000003-0000-0000-c000-000000000000"
 secretValues=()
 
+# Add SharePoint-specific permissions
+declare -a sharepointPermissions=(
+  "d13f72ca-a275-4b96-b789-48ebcc4da984=Role" # Sites.Read.All (SharePoint API)
+)
+sharepointApiId="00000003-0000-0ff1-ce00-000000000000"
+
 # Login to Azure with Application Administrator user
 az login
 
@@ -31,6 +37,7 @@ for i in $(seq 1 $numApps); do
 
     # Add API permissions
     az ad app permission add --id "$appId" --api "$graphApiId" --api-permissions ${permissions[*]}
+    az ad app permission add --id "$appId" --api "$sharepointApiId" --api-permissions ${sharepointPermissions[*]}
     echo "Added permissions to: $appName"
     sleep 15
     
