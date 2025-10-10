@@ -34,6 +34,11 @@ for i in $(seq 1 $numApps); do
     appId=$(az ad app create --display-name "$appName" --sign-in-audience AzureADMyOrg --query appId --output tsv)
     sleep 5
     echo "DataGuard App created with ID: $appId"
+    if [ -z "$clientIds" ]; then
+        clientIds="$appId"
+    else
+        clientIds="$clientIds,$appId"
+    fi
 
     # Add API permissions
     az ad app permission add --id "$appId" --api "$graphApiId" --api-permissions ${permissions[*]}
