@@ -64,6 +64,7 @@ echo "List of DataGuard App Client Ids: $clientIds"
 echo "Concatenated list of secrets: $combinedSecrets"
 
 #Switch to managed identity creds (with access to keyvault)
+echo "The following process assumes you are executing the script from an Azure VM. It will attempt to add the secret to the previously specified key vault."
 az account clear
 az login --identity --allow-no-subscriptions
 
