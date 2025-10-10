@@ -60,6 +60,9 @@ done
 combinedSecrets=$(IFS=','; echo "${secretValues[*]}")
 combinedSecretName="$prefix-combined-$numApps-secret"
 
+echo "List of DataGuard App Client Ids: $clientIds"
+echo "Concatenated list of secrets: $combinedSecrets"
+
 #Switch to managed identity creds (with access to keyvault)
 az account clear
 az login --identity --allow-no-subscriptions
