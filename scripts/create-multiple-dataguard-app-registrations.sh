@@ -7,6 +7,8 @@ declare -a permissions=(
     "332a536c-c7ef-4017-ab91-336970924f0d=Role"  # Sites.Read.All
     "230c1aed-a721-4c5d-9cb4-a90514e508ef=Role"  # Reports.Read.All
     "5e1e9171-754d-478c-812c-f1755a9a4c2d=Role"  # AuditLogsQuery.Read.All
+    "19da66cb-0fb0-4390-b071-ebc76a349482=Role"  # InformationProtectionPolicy.Read.All
+    "83d4163d-a2d8-4d3b-9695-4ae3ca98f888=Role"  # SharePointTenantSettings.Read.All
 )
 graphApiId="00000003-0000-0000-c000-000000000000"
 secretValues=()
