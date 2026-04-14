@@ -95,16 +95,28 @@ for i in $(seq 1 $numApps); do
 done
 
 sharedSecretName="$prefix-shared-certificate"
+pfxB64Value=$(cat "$pfxB64File")
 
 echo ""
-echo "List of DataGuard App Client Ids: $clientIds"
+echo "============================================================"
+echo "Client IDs (comma-separated):"
+echo "$clientIds"
+echo ""
+echo "Shared certificate (base64 PFX):"
+echo "$pfxB64Value"
+echo "============================================================"
 echo ""
 
-# Store the shared certificate in Key Vault (as base64-encoded PFX).
-# The current Azure login must have "set" permission on the Key Vault's secrets.
+# Attempt to store the shared certificate in Key Vault. If this fails (e.g.,
+# network restrictions, missing permissions), the output above still has
+# everything needed for manual configuration.
 echo "Storing shared certificate (base64 PFX) in Key Vault as: $sharedSecretName"
-az keyvault secret set --vault-name "$keyVaultName" --name "$sharedSecretName" --file "$pfxB64File" --output none
-echo "Shared certificate stored in Key Vault: $sharedSecretName"
+if az keyvault secret set --vault-name "$keyVaultName" --name "$sharedSecretName" --file "$pfxB64File" --output none 2>/dev/null; then
+    echo "Shared certificate stored in Key Vault: $sharedSecretName"
+else
+    echo "WARNING: Failed to write to Key Vault '$keyVaultName'."
+    echo "Use the base64 PFX value printed above to manually create the secret."
+fi
 
 echo ""
 echo "All DataGuard app registrations completed successfully!"
