@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 declare -a permissions=(
     "7ab1d382-f21e-4acd-a863-ba3e13f7da61=Role"  # Directory.Read.All
     "38d9df27-64da-44fd-b7c5-a6fbac20248f=Role"  # UserAuthenticationMethod.Read.All
@@ -11,7 +13,6 @@ declare -a permissions=(
     "83d4163d-a2d8-4d3b-9695-4ae3ca98f888=Role"  # SharePointTenantSettings.Read.All
 )
 graphApiId="00000003-0000-0000-c000-000000000000"
-secretValues=()
 
 # Add SharePoint-specific permissions
 declare -a sharepointPermissions=(
@@ -19,21 +20,56 @@ declare -a sharepointPermissions=(
 )
 sharepointApiId="00000003-0000-0ff1-ce00-000000000000"
 
-# Login to Azure with Application Administrator user
-az login
+# Ensure an Azure login is active. The signed-in user must have both
+# Application Administrator rights (to create app registrations) and Key Vault
+# write access on the target vault (to store the shared certificate).
+if ! az account show >/dev/null 2>&1; then
+    az login
+fi
 
 read -p "Enter the prefix for the DataGuard app registrations: " prefix
 read -p "Enter the number of app registrations to create: " numApps
 read -p "Enter the Azure Key Vault name: " keyVaultName
 
+# Create a working directory and ensure it gets cleaned up on exit
+workDir=$(mktemp -d)
+trap 'rm -rf "$workDir"' EXIT
+
+keyFile="$workDir/${prefix}-connector-key.pem"
+certFile="$workDir/${prefix}-connector-cert.pem"
+pfxFile="$workDir/${prefix}-connector.pfx"
+pfxB64File="$workDir/${prefix}-connector-pfx-b64.txt"
+
+# Generate a single self-signed certificate shared across all app registrations.
+echo "Generating shared certificate..."
+openssl req -x509 -newkey rsa:4096 -nodes \
+    -keyout "$keyFile" \
+    -out "$certFile" \
+    -days 1825 \
+    -subj "/CN=${prefix}-connector"
+
+# Export to PKCS12 (PFX) with an empty password so DataGuard can load it.
+openssl pkcs12 -export \
+    -passout pass: \
+    -out "$pfxFile" \
+    -inkey "$keyFile" \
+    -in "$certFile"
+
+# Base64-encode the PFX for storage in Key Vault (cross-platform via openssl).
+openssl base64 -A -in "$pfxFile" -out "$pfxB64File"
+echo "Shared certificate generated."
+
+clientIds=""
+
 for i in $(seq 1 $numApps); do
     appName="$prefix-app-0$i"
     echo "Creating DataGuard app registration: $appName"
-    
-    #Create App registration
+
+    # Create App registration
     appId=$(az ad app create --display-name "$appName" --sign-in-audience AzureADMyOrg --query appId --output tsv)
     sleep 5
     echo "DataGuard App created with ID: $appId"
+
     if [ -z "$clientIds" ]; then
         clientIds="$appId"
     else
@@ -45,36 +81,37 @@ for i in $(seq 1 $numApps); do
     az ad app permission add --id "$appId" --api "$sharepointApiId" --api-permissions ${sharepointPermissions[*]}
     echo "Added permissions to: $appName"
     sleep 15
-    
+
     # Grant admin consent
     az ad app permission admin-consent --id "$appId"
     echo "Admin consent granted for: $appName"
     sleep 5
 
-    # Create a client secret
-    echo "Creating client secret for: $appName"
-    secretValue=$(az ad app credential reset --id "$appId" --display-name "DefaultSecret" --query password --output tsv)
-    echo "Client secret created for: $appName"
+    # Upload the shared certificate to this app registration
+    echo "Uploading shared certificate to: $appName"
+    az ad app credential reset --id "$appId" --cert "@$certFile" --append --output none
+    echo "Certificate uploaded to: $appName"
     sleep 5
-
-    # Append the secret value to our array
-    secretValues+=("$secretValue")
-
 done
 
-combinedSecrets=$(IFS=','; echo "${secretValues[*]}")
-combinedSecretName="$prefix-combined-$numApps-secret"
+sharedSecretName="$prefix-shared-certificate"
 
+echo ""
 echo "List of DataGuard App Client Ids: $clientIds"
-echo "Concatenated list of secrets: $combinedSecrets"
+echo ""
 
-#Switch to managed identity creds (with access to keyvault)
-echo "The following process assumes you are executing the script from an Azure VM. It will attempt to add the secret to the previously specified key vault."
-az account clear
-az login --identity --allow-no-subscriptions
+# Store the shared certificate in Key Vault (as base64-encoded PFX).
+# The current Azure login must have "set" permission on the Key Vault's secrets.
+echo "Storing shared certificate (base64 PFX) in Key Vault as: $sharedSecretName"
+az keyvault secret set --vault-name "$keyVaultName" --name "$sharedSecretName" --file "$pfxB64File" --output none
+echo "Shared certificate stored in Key Vault: $sharedSecretName"
 
-echo "Storing combined client secrets in Key Vault as: $combinedSecretName"
-az keyvault secret set --vault-name "$keyVaultName" --name "$combinedSecretName" --value "$combinedSecrets" --output none
-echo "Combined client secret stored in Key Vault: $combinedSecretName"
-
+echo ""
 echo "All DataGuard app registrations completed successfully!"
+echo ""
+echo "Client IDs (comma-separated): $clientIds"
+echo "Key Vault secret name:        $sharedSecretName"
+echo ""
+echo "NOTE: All app registrations share the same certificate, so only one Key Vault"
+echo "secret is needed. Use the same secret name for every app in the DataGuard"
+echo "connector configuration."
