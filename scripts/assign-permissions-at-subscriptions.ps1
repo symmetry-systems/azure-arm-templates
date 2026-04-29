@@ -30,7 +30,11 @@ if (-not $tenantId -and -not $subscriptionsList ) {
 
 if (-not $principalName) {
     $principalName = Read-Host "Enter the DataGuard service principal name"
-    $principalId = $(Get-AzADServicePrincipal -DisplayName dg-test-arm-deploy).Id
+}
+$principalId = $(Get-AzADServicePrincipal -DisplayName $principalName).Id
+if (-not $principalId) {
+    Write-Host "Service principal '$principalName' not found." -ForegroundColor Red
+    exit 1
 }
 
 if (-not $action) {
